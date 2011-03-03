@@ -1,12 +1,12 @@
 <?php
 /*
 Plugin Name: Simple Image Size
-Plugin URI: http://wordpress.org/#
+Plugin URI: http://wordpress.org/extend/plugins/simple-image-sizes/
 Description: Add an option in media setting page for images sizes
-Version: 1.0
+Version: 1.0.1
 Author: Rahe
 Author URI: http://www.beapi.fr
-Text Domain: custom-image-size
+Text Domain: sis
 Domain Path: /languages/
 Network: false
 

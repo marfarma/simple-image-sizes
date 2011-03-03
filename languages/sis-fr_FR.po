@@ -1,0 +1,120 @@
+# Copyright (C) 2010 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple image sizes\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/simple-image-sizes\n"
+"POT-Creation-Date: 2011-03-03 09:27:12+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2011-03-03 10:40+0100\n"
+"Last-Translator: Nicolas <njuen@beapi.fr>\n"
+"Language-Team: Beapi <njuen@beapi.fr>\n"
+"X-Poedit-Language: French\n"
+"X-Poedit-Country: FRANCE\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: ../\n"
+
+#: inc/class.admin.php:45
+msgid "Reading attachments..."
+msgstr "Chargement des médias..."
+
+#: inc/class.admin.php:46
+#: inc/class.admin.php:137
+msgid "Maximum width"
+msgstr "Largeur maximum"
+
+#: inc/class.admin.php:47
+#: inc/class.admin.php:142
+msgid "Maximum height"
+msgstr "Hauteur maximum"
+
+#: inc/class.admin.php:48
+#: inc/class.admin.php:148
+#: inc/class.admin.php:192
+#: inc/class.admin.php:251
+msgid "Crop ?"
+msgstr "Crop ?"
+
+#: inc/class.admin.php:49
+#: inc/class.admin.php:153
+msgid "Delete"
+msgstr "Supprimer"
+
+#: inc/class.admin.php:50
+msgid "No media in your site to regenerate !"
+msgstr "Pas de médias à regénérer !"
+
+#: inc/class.admin.php:51
+msgid "Regenerating "
+msgstr "Regénération"
+
+#: inc/class.admin.php:52
+msgid "Validate image size name"
+msgstr "Valider le nom de la taille d'image"
+
+#: inc/class.admin.php:98
+msgid "Size "
+msgstr "Taille"
+
+#: inc/class.admin.php:109
+msgid "Thumbnail regeneration"
+msgstr "Régénération des vignettes"
+
+#: inc/class.admin.php:130
+msgid "Custom size"
+msgstr "Taille personnelle"
+
+#: inc/class.admin.php:133
+msgid "Theme size"
+msgstr "Taille de thème"
+
+#: inc/class.admin.php:167
+msgid "Add a new size of thumbnail"
+msgstr "Ajouter une nouvelle taille de vignette"
+
+#: inc/class.admin.php:184
+msgid "Select which thumbnails you want to rebuild:"
+msgstr "Sélectionnez les tailles de vignettes à régénérer"
+
+#: inc/class.admin.php:188
+#: inc/class.admin.php:247
+#: inc/class.admin.php:260
+#: inc/class.admin.php:285
+msgid "Resize ?"
+msgstr "Retailler ?"
+
+#: inc/class.admin.php:189
+#: inc/class.admin.php:248
+msgid "Size name"
+msgstr "Nom de la taille"
+
+#: inc/class.admin.php:190
+#: inc/class.admin.php:249
+msgid "Width"
+msgstr "Largeur"
+
+#: inc/class.admin.php:191
+#: inc/class.admin.php:250
+msgid "Height"
+msgstr "Hauteur"
+
+#: inc/class.admin.php:256
+msgid "Select which post type source thumbnails you want to rebuild:"
+msgstr "Sélectionnez quelles vignettes de quel type de contenu vous souhaitez régénérer:"
+
+#: inc/class.admin.php:261
+#: inc/class.admin.php:286
+msgid "Post type"
+msgstr "Type de contenu"
+
+#: inc/class.admin.php:298
+msgid "Last image:"
+msgstr "Dernière image:"
+
+#: inc/class.admin.php:299
+msgid "Regenerate Thumbnails"
+msgstr "Régénérer les vignettes"
+

@@ -4,12 +4,12 @@ Donate link: http://www.beapi.fr/donate/
 Tags: images, image, custom sizes, custom images, thumbnail regenerate, thumbnail, regenerate,
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: 1.0.2
+Stable tag: 1.0.4
 
 == Description ==
 
 This plugin allow create custom image sizes for your site. Override your theme sizes directly on the media option page.
-Regenerate your sizes by size and post type too !
+You can regenerate all the sizes you have just created and choose wich one you wanted to regenerate.
 
 == Installation ==
 
@@ -23,6 +23,15 @@ Regenerate your sizes by size and post type too !
 2. Regenerating
 
 == Changelog ==
+* 1.0.4
+	* Fix the plugin language
+	* Add some translations
+	* Externalise some css
+	* Add sizes in the image adding to an article
+	* Add setting link in the plugins list
+	* Use admin_url instead of home_url
+	* Add legend for colors
+	* Some code refactoring
 * 1.0.2
 	* Fix the plugin license
 * 1.0.1

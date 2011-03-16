@@ -3,8 +3,8 @@ jQuery(function() {
 	jQuery( '#add_size' ).click( addSize );
 	jQuery( '.add_size_name' ).live( 'click', registerSize );
 	jQuery( '.delete_size' ).live( 'click', deleteSize );
-	jQuery( 'span.custom_size' ).parent().parent().children('th').css( { 'color' : 'green' } );
-	jQuery( 'span.theme_size' ).parent().parent().children('th').css( { 'color' : 'orange' } );
+	jQuery( 'span.custom_size' ).closest('tr').children('th').css( { 'color' : 'green' } );
+	jQuery( 'span.theme_size' ).closest('tr').children('th').css( { 'color' : 'orange' } );
 });
 
 function addSize() {
@@ -22,11 +22,11 @@ function addSize() {
 }
 
 function registerSize() {
-	name = jQuery( this ).parent().parent().children( 'th' ).find( 'input' ).val();
-	id = jQuery( this ).parent().parent().children( 'th' ).find( 'input' ).attr( 'id' );
+	name = jQuery( this ).closest('tr').children( 'th' ).find( 'input' ).val();
+	id = jQuery( this ).closest('tr').children( 'th' ).find( 'input' ).attr( 'id' );
 	
 	output = '<th scope="row">';
-		output += 'Size '+name;
+		output += custom_image_size.size+' '+name;
 	output += '</th>';
 	output += '<td>';
 		output += '<input name="custom_image_sizes['+name+'][custom]" type="hidden" id="custom_image_sizes['+name+'][custom]" value="1" />';
@@ -106,10 +106,10 @@ function regenerate() {
 					jQuery( "#ajax_thumbnail_rebuild" ).removeAttr( "disabled" );
 					jQuery( ".progress, #thumb" ).hide();
 					
-					setMessage("Done.");
+					setMessage(custom_image_size.done);
 					return;
 				}
-				setMessage( custom_image_size.regenerating + ( curr+1 ) + " of " + list.length + " (" + list[curr].title + ")...");
+				setMessage( custom_image_size.regenerating + ( curr+1 ) + custom_image_size.of + list.length + " (" + list[curr].title + ")...");
 
 				jQuery.ajax({
 					url: custom_image_size.ajaxUrl,

@@ -2,15 +2,21 @@
 Class SISAdmin{
 	
 	// Original sizes
-	var $original = array( 'thumbnail', 'medium', 'large' );
+	public $original = array( 'thumbnail', 'medium', 'large' );
 
-	function __construct(){
+	public function __construct(){
 		// Init
 		add_action ( 'admin_menu', array( &$this, 'init' ) );
-		add_action ( 'admin_init', array( &$this, 'registerJavaScript' ), 11 );
+		add_action ( 'admin_init', array( &$this, 'registerScripts' ), 11 );
 		
 		// Add ajax action
-		add_action('wp_ajax_ajax_thumbnail_rebuild', array( &$this, 'ajax_thumbnail_rebuild_ajax' ) );
+		add_action('wp_ajax_ajax_thumbnail_rebuild', array( &$this, 'ajaxThumbnailRebuildAjax' ) );
+		
+		// Add image sizes in the form
+		add_filter( 'attachment_fields_to_edit', array( &$this, 'sizesInForm' ), 11, 2 ); // Add our sizes to media forms
+		
+		// Add link in plugins list
+		add_filter('plugin_action_links', array( &$this,'addSettingsLink'), 10, 2 );
 	}
 	
 	/**
@@ -20,16 +26,17 @@ Class SISAdmin{
 	 * @return void
 	 * @author Nicolas Juen
 	 */
-	function registerJavaScript() {
+	public function registerScripts() {
 		// Add javascript
-		wp_enqueue_script( 'custom_image_size', SIS_URL.'js/custom_sizes.min.js', array('jquery'), '1.0' );
+		wp_enqueue_script( 'custom_image_size', SIS_URL.'js/custom_sizes.js', array('jquery'), '1.0' );
 		wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.custom.min.js', array(), '1.8.10' );
 		
 		// Ad javascript translation
-		wp_localize_script( 'custom_image_size', 'custom_image_size', $this->localize_vars() );
+		wp_localize_script( 'custom_image_size', 'custom_image_size', $this->localizeVars() );
 		
 		// Add CSS
 		wp_enqueue_style( 'jquery-ui-regenthumbs', SIS_URL.'jquery-ui/redmond/jquery-ui-1.8.10.custom.css', array(), '1.8.10' );
+		wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), '1.0' );
 	}
 	
 	/**
@@ -39,18 +46,41 @@ Class SISAdmin{
 	 * @return void
 	 * @author Nicolas Juen
 	 */
-	function localize_vars() {
+	public function localizeVars() {
 	    return array(
-	        'ajaxUrl' =>  home_url( '/wp-admin/admin-ajax.php' ),
+	        'ajaxUrl' =>  admin_url( '/admin-ajax.php' ),
 	        'reading' => __( 'Reading attachments...', 'sis' ),
 	        'maximumWidth' => __( 'Maximum width', 'sis' ),
 	        'maximumHeight' => __( 'Maximum height', 'sis' ),
 	        'crop' => __( 'Crop ?', 'sis' ),
+	        'of' => __( ' of ', 'sis' ),
 	        'deleteImage' => __( 'Delete', 'sis' ),
 	        'noMedia' => __( 'No media in your site to regenerate !', 'sis' ),
 	        'regenerating' => __( 'Regenerating ', 'sis'),
 	        'validate' => __( 'Validate image size name', 'sis' ),	        
+	        'done' => __( 'Done.', 'sis' ),
+	        'size' => __( 'Size', 'sis' ),	        
 	    );
+	}
+	
+	/**
+	 * Add a link to the setting option page
+	 * 
+	 * @access public
+ 	 * @param array $links
+	 * @param string $file
+	 * @return void
+	 * @author Nicolas Juen
+	 */
+	public function addSettingsLink( $links, $file ) {
+	
+		if( $file != 'simple-image-sizes/simple_image_sizes.php' )
+			return $links;
+			
+		$settings_link = '<a href="'.admin_url('options-media.php').'"> '.__( 'Settings', 'sis' ).' </a>';
+		array_unshift($links, $settings_link);
+		
+		return $links;
 	}
 
 	/**
@@ -94,8 +124,8 @@ Class SISAdmin{
 			else                                                      // For default sizes set in options
 				$crop = get_option( "{$s}_crop" );
 			
-			// Add the setting ield for this size
-			add_settings_field( 'image_size_'.$s.'', __( 'Size ', 'sis' ).$s, array( &$this, 'image_sizes' ), 'media' , 'default', array( 'name' => $s , 'width' => $width , 'height' => $height ) );
+			// Add the setting field for this size
+			add_settings_field( 'image_size_'.$s.'', __( 'Size ', 'sis' ).$s, array( &$this, 'imageSizes' ), 'media' , 'default', array( 'name' => $s , 'width' => $width , 'height' => $height ) );
 
 	 	}
 	 	
@@ -103,10 +133,13 @@ Class SISAdmin{
 	 	register_setting( 'media', 'custom_image_sizes' );
 	 	
 	 	// Add the button
-	 	add_settings_field( 'add_size', 'Add a new size', array( &$this, 'add_size' ), 'media' );
+	 	add_settings_field( 'add_size', __( 'Add a new size', 'sis' ), array( &$this, 'addSize' ), 'media' );
+		
+		// Add legend
+	 	add_settings_field( 'add_legend', __( 'Legend of the sizes', 'sis' ), array( &$this, 'addLegend' ), 'media' );
 	 	
 	 	// Add section for the thumbnail regeneration
-	 	add_settings_section( 'thumbnail_regenerate', __( 'Thumbnail regeneration', 'sis' ), array( &$this, 'thumbnail_regenerate' ), 'media' );
+	 	add_settings_section( 'thumbnail_regenerate', __( 'Thumbnail regeneration', 'sis' ), array( &$this, 'thumbnailRegenerate' ), 'media' );
  	}
  	
  	/**
@@ -117,7 +150,7 @@ Class SISAdmin{
  	 * @return void
 	 * @author Nicolas Juen
  	 */
- 	function image_sizes( $args ) {
+ 	public function imageSizes( $args ) {
  		// Get the options
 		$sizes = (array)get_option( 'custom_image_sizes' );
 		
@@ -148,10 +181,9 @@ Class SISAdmin{
 			<?php _e( 'Crop ?', 'sis'); ?> 
 			<input type='checkbox' <?php checked( $crop, 1 ) ?> name="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" value="1" />
 		</label>
-		<!-- <img src="<?php echo esc_url( admin_url( 'images/no.png' ) ); ?>" alt="" class="delete_size" /> -->
-		<label class="ui-state-default ui-corner-all delete_size" style="width: 90px; padding: 0px; display:inline-block; position:relative; text-indent:16px;margin-right:5px;text-align:center">
+		<label class="ui-state-default ui-corner-all delete_size">
 			<?php _e( 'Delete', 'sis'); ?> 
-			<div class="ui-icon ui-icon-circle-close" style="float: right; top: 2px; position:absolute;left: 0px;">
+			<div class="ui-icon ui-icon-circle-close delete_size_icon">
 			</div>
 		</label>
 	<?php }
@@ -163,8 +195,20 @@ Class SISAdmin{
 	 * @return void
  	 * @author Nicolas Juen
 	 */
-	function add_size() { ?>
+	public function addSize() { ?>
 		<input type="button" class="button-secondary action" id="add_size" value="<?php _e( 'Add a new size of thumbnail', 'sis'); ?> " />
+	<?php
+	}	
+	
+	/**
+	 * Add the legend fo the colors
+	 * 
+	 * @access public
+	 * @return void
+ 	 * @author Nicolas Juen
+	 */
+	public function addLegend() { ?>
+		<?php _e('The images created on your theme are <span style="color:orange">orange</span> and your custom size are <span style="color:green"> green </span>.', 'sis'); ?>
 	<?php
 	}
 	
@@ -175,12 +219,12 @@ Class SISAdmin{
 	 * @return void
 	 * @author Nicolas Juen
 	 */
-	function thumbnail_regenerate() {
+	public function thumbnailRegenerate() {
 		// Get the sizes
 		global $_wp_additional_image_sizes;
 ?>
-		<div>
-			<div style="display: inline-block;float: left;width: 45%;">
+		<div id="sis-regen">
+			<div class="wrapper" style="">
 			    <h4> <?php _e( 'Select which thumbnails you want to rebuild:', 'sis'); ?> </h4>
 				<table cellspacing="0" class="widefat page fixed">
 	                <thead>
@@ -261,7 +305,7 @@ Class SISAdmin{
 	                    	<th class="manage-column column-author" scope="col"><?php _e( 'Post type', 'sis'); ?></th>
 	                    </tr>
 	                </thead>
-	                <tboby>
+	                <tbody>
 						<?php
 						// Diplay the post types table
 						foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $ptype ):
@@ -291,12 +335,12 @@ Class SISAdmin{
 		</div>
 		
 		<div style="clear:both;padding-top:15px">
-			<div id="regenerate_message" style="display:none"></div>
-			<div class="progress" style="position:relative;height:25px;">
-				<div class="progress-percent" style="position:absolute;left:50%;top:50%;width:50px;margin-left:-25px;height:25px;margin-top:-9px;font-weight:bold;text-align:center;"></div>
+			<div id="regenerate_message"></div>
+			<div class="progress">
+				<div class="progress-percent" ></div>
 			</div>
-			<div id="thumb" style="display:none;"><h4><?php _e( 'Last image:', 'sis'); ?></h4><img id="thumb-img" /></div>
-			<input type="button" onClick="javascript:regenerate();" class="button" name="ajax_thumbnail_rebuild" id="ajax_thumbnail_rebuild" value="<?php _e( 'Regenerate Thumbnails', 'sis' ) ?>" style="margin-top:40px;" />
+			<div id="thumb"><h4><?php _e( 'Last image:', 'sis'); ?></h4><img id="thumb-img" /></div>
+			<input type="button" onClick="javascript:regenerate();" class="button" name="ajax_thumbnail_rebuild" id="ajax_thumbnail_rebuild" value="<?php _e( 'Regenerate Thumbnails', 'sis' ) ?>" />
 		</div>
 		<?php
 	}
@@ -308,7 +352,7 @@ Class SISAdmin{
 	 * @return void
 	 * @author Nicolas Juen
 	 */
-	function ajax_thumbnail_rebuild_ajax() {
+	public function ajaxThumbnailRebuildAjax() {
 		global $wpdb;
 		
 		// Get the action
@@ -384,7 +428,7 @@ Class SISAdmin{
 	 * @param string $file Filepath of the Attached image.
 	 * @return mixed Metadata for attachment.
 	 */
-	function wp_generate_attachment_metadata_custom( $attachment_id, $file, $thumbnails = NULL ) {
+	public function wp_generate_attachment_metadata_custom( $attachment_id, $file, $thumbnails = NULL ) {
 		$attachment = get_post( $attachment_id );
 	
 		$metadata = array();
@@ -438,6 +482,71 @@ Class SISAdmin{
 		}
 	
 		return apply_filters( 'wp_generate_attachment_metadata', $metadata, $attachment_id );
+	}
+	
+	/**
+	 * Add the custom sizes to the image sizes in article edition
+	 * 
+	 * @access public
+ 	 * @param array $form_fields
+	 * @param object $post
+	 * @return void
+	 * @author Nicolas Juen
+	 * @author Additional Image Sizes (zui)
+	 */
+	public function sizesInForm( $form_fields, $post ) {
+		// Protect from being view in Media editor where there are no sizes
+        if ( isset($form_fields['image-size']) ) {
+            $out = NULL;
+            $size_names = array();
+            $sizes_custom = get_option( 'custom_image_sizes' );
+            if (is_array($sizes_custom)) {
+                foreach($sizes_custom as $key => $value) {
+                    $size_names[$key] = $key;
+                }
+            }
+            foreach ( $size_names as $size => $label ) {
+                $downsize = image_downsize($post->ID, $size);
+
+                // is this size selectable?
+                $enabled = ( $downsize[3] || 'full' == $size );
+                $css_id = "image-size-{$size}-{$post->ID}";
+
+                // We must do a clumsy search of the existing html to determine is something has been checked yet
+                if ( FALSE === strpos('checked="checked"', $form_fields['image-size']['html']) ) {
+
+                    if ( empty($check) )
+                        $check = get_user_setting('imgsize'); // See if they checked a custom size last time
+
+                    $checked = '';
+
+                    // if this size is the default but that's not available, don't select it
+                    if ( $size == $check || str_replace(" ", "", $size) == $check ) {
+                        if ( $enabled )
+                            $checked = " checked='checked'";
+                        else
+                            $check = '';
+                    } elseif ( !$check && $enabled && 'thumbnail' != $size ) {
+                        // if $check is not enabled, default to the first available size that's bigger than a thumbnail
+                        $check = $size;
+                        $checked = " checked='checked'";
+                    }
+                }
+                $html = "<div class='image-size-item' style='min-height: 50px; margin-top: 18px;'><input type='radio' " . disabled( $enabled, false, false ) . "name='attachments[$post->ID][image-size]' id='{$css_id}' value='{$size}'$checked />";
+
+                $html .= "<label for='{$css_id}'>$label</label>";
+                // only show the dimensions if that choice is available
+                if ( $enabled )
+                    $html .= " <label for='{$css_id}' class='help'>" . sprintf( "(%d&nbsp;&times;&nbsp;%d)", $downsize[1], $downsize[2] ). "</label>";
+
+                $html .= '</div>';
+
+                $out .= $html;
+            }
+            $form_fields['image-size']['html'] .= $out;
+        } // End protect from Media editor
+
+        return $form_fields;
 	}
 }
 ?>

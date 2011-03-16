@@ -4,7 +4,7 @@ Donate link: http://www.beapi.fr/donate/
 Tags: images, image, custom sizes, custom images, thumbnail regenerate, thumbnail, regenerate,
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: 1.0.4
+Stable tag: 1.0.3
 
 == Description ==
 
@@ -23,7 +23,7 @@ You can regenerate all the sizes you have just created and choose wich one you w
 2. Regenerating
 
 == Changelog ==
-* 1.0.4
+* 1.0.3
 	* Fix the plugin language
 	* Add some translations
 	* Externalise some css

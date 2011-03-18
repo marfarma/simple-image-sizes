@@ -29,7 +29,7 @@ Class SISClient {
 			$crop = ( isset( $size['c'] ) && !empty( $size['c'] ) )? $size['c'] : 0 ;
 			
 			// Add the images sizes
-			add_image_size( $name, $size['h'], $size['w'], $crop );
+			add_image_size( $name, $size['w'], $size['h'], $crop );
 		}		
 	}
 }

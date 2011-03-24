@@ -226,7 +226,7 @@ Class SISAdmin{
 		<div id="sis-regen">
 			<div class="wrapper" style="">
 			    <h4> <?php _e( 'Select which thumbnails you want to rebuild:', 'sis'); ?> </h4>
-				<table cellspacing="0" class="widefat page fixed">
+				<table cellspacing="0" class="widefat">
 	                <thead>
 	                    <tr>
 	                    	<th class="manage-column column-comments" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
@@ -298,7 +298,7 @@ Class SISAdmin{
 			</div>
 			<div style="display: inline-block;width: 25%;margin-left: 15px;">
 				<h4><?php _e( 'Select which post type source thumbnails you want to rebuild:', 'sis'); ?></h4>
-				<table cellspacing="0" class="widefat page fixed">
+				<table cellspacing="0" class="widefat">
 	                <thead>
 	                    <tr>
 	                    	<th class="manage-column column-comments" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>

@@ -1,15 +1,16 @@
 === Simple Image Sizes ===
-Contributors: rahe
+Contributors: Rahe
 Donate link: http://www.beapi.fr/donate/
 Tags: images, image, custom sizes, custom images, thumbnail regenerate, thumbnail, regenerate
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 
 == Description ==
 
 This plugin allow create custom image sizes for your site. Override your theme sizes directly on the media option page.
 You can regenerate all the sizes you have just created and choose which one you wanted to regenerate.
+You can now get all the code to copy and paste to your function theme file.
 
 == Installation ==
 
@@ -24,6 +25,11 @@ You can regenerate all the sizes you have just created and choose which one you 
 2. Regenerating
 
 == Changelog ==
+* 1.0.5
+	* Only add css and js script in the media page to avoid any javascript error in other pages
+	* Rectify css
+	* Add function to get the code for the function.php file of the theme
+	* Don't redefine the Wordpress basic size names
 * 1.0.4
 	* Fix the add_image_size issue ( height and width reversed )
 * 1.0.3

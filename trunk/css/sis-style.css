@@ -15,7 +15,7 @@
 	left: 0px;
 }
 
-#sis-regen .progress-percent {
+.progress .progress-percent {
 	position:absolute;
 	left:50%;
 	top:50%;
@@ -27,25 +27,25 @@
 	text-align:center;
 }
 
-#sis-regen .wrapper {
+.wrapper {
 	display: inline-block;
 	float: left;
 	width: 45%;
 }
 
-#sis-regen #regenerate_message {
+#regenerate_message {
 	display:none;
 }
 
-#sis-regen .progress {
+.progress {
 	position:relative;
 	height:25px;
 }
 
-#sis-regen #thumb {
+#thumb {
 	display:none;
 }
 
-#sis-regen #ajax_thumbnail_rebuild {
+#ajax_thumbnail_rebuild {
 	margin-top:40px;
 }

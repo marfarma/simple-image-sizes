@@ -7,10 +7,11 @@ Class SISAdmin{
 	public function __construct(){
 		// Init
 		add_action ( 'admin_menu', array( &$this, 'init' ) );
-		add_action ( 'admin_init', array( &$this, 'registerScripts' ), 11 );
+		add_action ( 'admin_enqueue_scripts', array( &$this, 'registerScripts' ), 11 );
 		
 		// Add ajax action
 		add_action('wp_ajax_ajax_thumbnail_rebuild', array( &$this, 'ajaxThumbnailRebuildAjax' ) );
+		add_action('wp_ajax_get_sizes', array( &$this, 'ajaxGetSizes' ) );
 		
 		// Add image sizes in the form
 		add_filter( 'attachment_fields_to_edit', array( &$this, 'sizesInForm' ), 11, 2 ); // Add our sizes to media forms
@@ -26,17 +27,19 @@ Class SISAdmin{
 	 * @return void
 	 * @author Nicolas Juen
 	 */
-	public function registerScripts() {
-		// Add javascript
-		wp_enqueue_script( 'custom_image_size', SIS_URL.'js/custom_sizes.js', array('jquery'), '1.0' );
-		wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.custom.min.js', array(), '1.8.10' );
-		
-		// Ad javascript translation
-		wp_localize_script( 'custom_image_size', 'custom_image_size', $this->localizeVars() );
-		
-		// Add CSS
-		wp_enqueue_style( 'jquery-ui-regenthumbs', SIS_URL.'jquery-ui/redmond/jquery-ui-1.8.10.custom.css', array(), '1.8.10' );
-		wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), '1.0' );
+	public function registerScripts($hook_suffix = '' ) {
+		if( $hook_suffix == 'options-media.php' ) {
+			// Add javascript
+			wp_enqueue_script( 'custom_image_size', SIS_URL.'js/custom_sizes.min.js', array('jquery'), '1.0' );
+			wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.custom.min.js', array(), '1.8.10' );
+			
+			// Ad javascript translation
+			wp_localize_script( 'custom_image_size', 'custom_image_size', $this->localizeVars() );
+			
+			// Add CSS
+			wp_enqueue_style( 'jquery-ui-regenthumbs', SIS_URL.'jquery-ui/redmond/jquery-ui-1.8.10.custom.css', array(), '1.8.10' );
+			wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), '1.0' );
+		}
 	}
 	
 	/**
@@ -59,7 +62,8 @@ Class SISAdmin{
 	        'regenerating' => __( 'Regenerating ', 'sis'),
 	        'validate' => __( 'Validate image size name', 'sis' ),	        
 	        'done' => __( 'Done.', 'sis' ),
-	        'size' => __( 'Size', 'sis' ),	        
+	        'size' => __( 'Size', 'sis' ),	
+	        'notOriginal' => __( 'Don\'t use the basic Wordpress thumbnail size name, use the form above to edit them', 'sis' ),        
 	    );
 	}
 	
@@ -138,6 +142,9 @@ Class SISAdmin{
 		// Add legend
 	 	add_settings_field( 'add_legend', __( 'Legend of the sizes', 'sis' ), array( &$this, 'addLegend' ), 'media' );
 	 	
+	 	// Add size button
+	 	add_settings_field( 'get_php', __( 'Get php for theme', 'sis' ), array( &$this, 'getPhp' ), 'media' );
+	 	
 	 	// Add section for the thumbnail regeneration
 	 	add_settings_section( 'thumbnail_regenerate', __( 'Thumbnail regeneration', 'sis' ), array( &$this, 'thumbnailRegenerate' ), 'media' );
  	}
@@ -189,14 +196,28 @@ Class SISAdmin{
 	<?php }
 	
 	/**
-	 * Add the button to ass a size
+	 * Add the button to add a size
 	 * 
 	 * @access public
 	 * @return void
  	 * @author Nicolas Juen
 	 */
 	public function addSize() { ?>
-		<input type="button" class="button-secondary action" id="add_size" value="<?php _e( 'Add a new size of thumbnail', 'sis'); ?> " />
+		<input type="button" class="button-secondary action" id="add_size" value="<?php _e( 'Add a new size of thumbnail', 'sis'); ?>" />
+	<?php
+	}	
+	
+	/**
+	 * Add the button to get the php for th sizes
+	 * 
+	 * @access public
+	 * @return void
+ 	 * @author Nicolas Juen
+	 */
+	public function getPhp() { ?>
+		<input type="button" class="button-secondary action" id="get_php" value="<?php _e( 'Get the PHP for the template', 'sis'); ?>" />
+		<p> <?php _e( 'Copy and paste the code below into your Wordpress theme function file if you wanted to save them and deactivate the plugin.', 'sis'); ?> </p>
+		<code></code>
 	<?php
 	}	
 	
@@ -226,10 +247,10 @@ Class SISAdmin{
 		<div id="sis-regen">
 			<div class="wrapper" style="">
 			    <h4> <?php _e( 'Select which thumbnails you want to rebuild:', 'sis'); ?> </h4>
-				<table cellspacing="0" class="widefat">
+				<table cellspacing="0" class="widefat page fixed">
 	                <thead>
 	                    <tr>
-	                    	<th class="manage-column column-comments" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
+	                    	<th class="manage-column column-date" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
 	                        <th class="manage-column column-author" scope="col"><?php _e( 'Size name', 'sis'); ?></th>
 	                        <th class="manage-column column-author" scope="col"><?php _e( 'Width', 'sis'); ?></th>
 	                        <th class="manage-column column-author" scope="col"><?php _e( 'Height', 'sis'); ?></th>
@@ -288,7 +309,7 @@ Class SISAdmin{
 						<?php endforeach;?>
 	                </tbody>                
 	                <tfoot>
-	                    	<th class="manage-column column-comments" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
+	                    	<th class="manage-column column-date" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
 	                        <th class="manage-column column-author" scope="col"><?php _e( 'Size name', 'sis'); ?></th>
 	                        <th class="manage-column column-author" scope="col"><?php _e( 'Width', 'sis'); ?></th>
 	                        <th class="manage-column column-author" scope="col"><?php _e( 'Height', 'sis'); ?></th>
@@ -298,10 +319,10 @@ Class SISAdmin{
 			</div>
 			<div style="display: inline-block;width: 25%;margin-left: 15px;">
 				<h4><?php _e( 'Select which post type source thumbnails you want to rebuild:', 'sis'); ?></h4>
-				<table cellspacing="0" class="widefat">
+				<table cellspacing="0" class="widefat page fixed">
 	                <thead>
 	                    <tr>
-	                    	<th class="manage-column column-comments" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
+	                    	<th class="manage-column column-date" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
 	                    	<th class="manage-column column-author" scope="col"><?php _e( 'Post type', 'sis'); ?></th>
 	                    </tr>
 	                </thead>
@@ -326,7 +347,7 @@ Class SISAdmin{
 					</tbody>                
 	                <tfoot>
 	                    <tr>
-	                    	<th class="manage-column column-comments" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
+	                    	<th class="manage-column column-date" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
 	                    	<th class="manage-column column-author" scope="col"><?php _e( 'Post type', 'sis'); ?></th>
 	                    </tr>
 	                </tfoot>
@@ -343,6 +364,44 @@ Class SISAdmin{
 			<input type="button" onClick="javascript:regenerate();" class="button" name="ajax_thumbnail_rebuild" id="ajax_thumbnail_rebuild" value="<?php _e( 'Regenerate Thumbnails', 'sis' ) ?>" />
 		</div>
 		<?php
+	}
+	
+	/**
+	 * Display the add_image_size for the registered sizes
+	 * 
+	 * @access public
+	 * @return void
+	 */
+	public function ajaxGetSizes() {
+		global $_wp_additional_image_sizes;
+		
+		foreach ( get_intermediate_image_sizes() as $s ):
+
+		// Don't make the original sizes
+		if( in_array( $s, $this->original ) )
+			continue;
+			
+		if ( isset( $_wp_additional_image_sizes[$s]['width'] ) ) // For theme-added sizes
+			$width = intval( $_wp_additional_image_sizes[$s]['width'] );
+		else                                                     // For default sizes set in options
+			$width = get_option( "{$s}_size_w" );
+
+		if ( isset( $_wp_additional_image_sizes[$s]['height'] ) ) // For theme-added sizes
+			$height = intval( $_wp_additional_image_sizes[$s]['height'] );
+		else                                                      // For default sizes set in options
+			$height = get_option( "{$s}_size_h" );
+
+		if ( isset( $_wp_additional_image_sizes[$s]['crop'] ) )   // For theme-added sizes
+			$crop = intval( $_wp_additional_image_sizes[$s]['crop'] );
+		else                                                      // For default sizes set in options
+			$crop = get_option( "{$s}_crop" );
+		
+		$crop = ( $crop == 0 )? 'false' : 'true' ;
+		?>
+			add_image_size( '<?php echo $s; ?>', '<?php echo $width; ?>', '<?php echo $height; ?>', '<?php echo $crop ?>' );<br />
+		<?php endforeach;
+		
+		die();
 	}
 	
 	/**

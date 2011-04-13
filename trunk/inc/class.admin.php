@@ -28,17 +28,17 @@ Class SISAdmin{
 	 * @author Nicolas Juen
 	 */
 	public function registerScripts($hook_suffix = '' ) {
-		if( $hook_suffix == 'options-media.php' ) {
+		if( isset( $hook_suffix ) && $hook_suffix == 'options-media.php' ) {
 			// Add javascript
-			wp_enqueue_script( 'custom_image_size', SIS_URL.'js/custom_sizes.min.js', array('jquery'), '1.0' );
-			wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.custom.min.js', array(), '1.8.10' );
+			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.min.js', array('jquery'), '1.5' );
+			wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.progressbar.min.js', array(), '1.8.10' );
 			
-			// Ad javascript translation
-			wp_localize_script( 'custom_image_size', 'custom_image_size', $this->localizeVars() );
+			// Add javascript translation
+			wp_localize_script( 'sis_js', 'sis', $this->localizeVars() );
 			
 			// Add CSS
-			wp_enqueue_style( 'jquery-ui-regenthumbs', SIS_URL.'jquery-ui/redmond/jquery-ui-1.8.10.custom.css', array(), '1.8.10' );
-			wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), '1.0' );
+			wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/jquery-ui-1.8.10.progressbar.css', array(), '1.8.10' );
+			wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), '1.5' );
 		}
 	}
 	
@@ -215,7 +215,7 @@ Class SISAdmin{
  	 * @author Nicolas Juen
 	 */
 	public function getPhp() { ?>
-		<input type="button" class="button-secondary action" id="get_php" value="<?php _e( 'Get the PHP for the template', 'sis'); ?>" />
+		<input type="button" class="button-secondary action" id="get_php" value="<?php _e( 'Get the PHP for the theme', 'sis'); ?>" />
 		<p> <?php _e( 'Copy and paste the code below into your Wordpress theme function file if you wanted to save them and deactivate the plugin.', 'sis'); ?> </p>
 		<code></code>
 	<?php
@@ -374,7 +374,7 @@ Class SISAdmin{
 	 */
 	public function ajaxGetSizes() {
 		global $_wp_additional_image_sizes;
-		
+
 		foreach ( get_intermediate_image_sizes() as $s ):
 
 		// Don't make the original sizes

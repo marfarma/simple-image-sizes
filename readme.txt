@@ -3,8 +3,8 @@ Contributors: Rahe
 Donate link: http://www.beapi.fr/donate/
 Tags: images, image, custom sizes, custom images, thumbnail regenerate, thumbnail, regenerate
 Requires at least: 3.0
-Tested up to: 3.1
-Stable tag: 1.0.5
+Tested up to: 3.1.1
+Stable tag: 1.0.6
 
 == Description ==
 
@@ -25,6 +25,10 @@ You can now get all the code to copy and paste to your function theme file.
 2. Regenerating
 
 == Changelog ==
+* 1.0.6
+	* Minify javascript names
+	* Change progressbar style
+	* Add animations on progressbar
 * 1.0.5
 	* Only add css and js script in the media page to avoid any javascript error in other pages
 	* Rectify css

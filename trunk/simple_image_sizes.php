@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Simple Image Size
-Plugin URI: http://redmine.beapi.fr/projects/simple-image-sizes/
+Plugin URI: http://wordpress.org/extend/plugins/simple-image-sizes/
 Description: Add options in media setting page for images sizes
 Version: 1.0.6
 Author: Rahe
-Author URI: http://nicolas-juen.fr
+Author URI: http://www.beapi.fr
 Text Domain: sis
 Domain Path: /languages/
 Network: false

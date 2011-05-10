@@ -1,5 +1,104 @@
 var i = 0;
+var regenerate = {
+	post_types : '',
+	thumbnails : '',
+	list : '',
+	cur : 0,
+	percent : '' ,
+	getThumbnails : function() {
+		var self = this;
+		var inputs = jQuery('input.thumbnails:checked');
+		if (inputs.length != jQuery('input.thumbnails[type="checkbox"]').length) {
+			inputs.each(function(i) {
+				self.thumbnails += '&thumbnails[]=' + jQuery(this).val();
+			});
+		}	
+	},
+	getPostTypes : function() {
+		var self = this;
+	    var inputs = jQuery('input.post_types:checked');
+		if (inputs.length != jQuery('input.post_types[type="checkbox"]').length) {
+			inputs.each(function() {
+				self.post_types += '&post_types[]=' + jQuery(this).val();
+			});
+		}
+	},
+	setMessage : function( msg ) {
+	    jQuery("#regenerate_message").html(msg).addClass('updated').addClass('fade').show();
+		this.refreshProgressBar();
+	},
+	refreshProgressBar: function(){
+		jQuery(".progress").progressbar();
+	},
+	startRegenerating : function( ) {
+		var self = this;
+		
+		jQuery.ajax({
+			url: sis.ajaxUrl,
+			type: "POST",
+			data: "action=ajax_thumbnail_rebuild&do=getlist" + self.post_types,
+			beforeSend: function(){
+				
+				// Disable the button
+				jQuery("#ajax_thumbnail_rebuild").attr("disabled", true);
+				self.setMessage("<p>" + sis.reading + "</p>");
+		
+				self.getThumbnails();
+				self.getPostTypes();
+			},
+			success: function(r) {
+				self.list = eval( r );
+				self.curr = 0;
+				jQuery('.progress').show();
+				
+				self.regenItem();
+			}
+		});
+	},
+	regenItem : function( ) {
+		var self = this;
+		
+		if (!this.list) {
+			this.reInit();
+			this.setMessage(sis.noMedia);
+			return false;
+		}
+		
+		if (this.curr >= this.list.length) {
+			this.reInit();
+			this.setMessage( sis.done+this.curr+' images have been regenerated !');
+			return;
+		}
+		
+		this.setMessage(sis.regenerating + (this.curr + 1) + sis.of + this.list.length + " (" + this.list[this.curr].title + ")...");
+
+		jQuery.ajax({
+			url: sis.ajaxUrl,
+			type: "POST",
+			data: "action=ajax_thumbnail_rebuild&do=regen&id=" + this.list[this.curr].id + this.thumbnails,
+			beforeSend : function() {		
+				self.percent = ( self.curr / self.list.length ) * 100;
+				jQuery(".progress").progressbar("value", self.percent);
+				jQuery(".progress-percent").html(Math.round(self.percent) + "%").animate( { left: Math.round( self.percent )-2.5 + "%" }, 500 );
+			},
+			success: function( r ) {
+				r = eval( r );
+				jQuery("#thumb").show();
+				jQuery("#thumb-img").attr("src", r[0].src);
+
+				self.curr++;
+				self.regenItem();
+			}
+		});
+	},
+	reInit: function() {
+		jQuery("#ajax_thumbnail_rebuild").removeAttr("disabled");
+		jQuery(".progress, #thumb").hide();
+	}
+}
 jQuery(function() {
+
+	jQuery( '#ajax_thumbnail_rebuild' ).click( regen );
     jQuery('#add_size').click(addSize);
     jQuery('.add_size_name').live('click', registerSize);
     jQuery('.delete_size').live('click', deleteSize);
@@ -9,13 +108,25 @@ jQuery(function() {
     jQuery('span.theme_size').closest('tr').children('th').css({
         'color': 'orange'
     });
+	
     jQuery('#get_php').click(getPhp);
 	jQuery('#get_php').nextAll('code').hide();
 	
 	jQuery('.progress').hide();
+	
+	jQuery( '<div class="ui-widget" id="msg"><div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"><p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span><strong>Alert:</strong> <ul class="msg" ></ul></p></div></div>').prependTo( "div#wpwrap" ).slideUp( 0 );
+	
+	jQuery("#msg").ajaxError(function(event, request, settings) {
+		jQuery(this).find( '.msg' ).append("<li>Error requesting page " + settings.url + ", status "+request.status+" : "+request.statusText+"</li>").end().slideDown( 200 ).delay( 5000 ).slideUp( 200 );
+	});
 });
 
-function addSize() {
+function regen(){
+	regenerate.startRegenerating();
+}
+
+function addSize(e) {
+	e.preventDefault();
     row = '<tr valign="top" class="new_size_' + i + '">';
     row += '<th scope="row">';
     row += '<input type="text" value="thumbnail-name" id="new_size_' + i + '" />';
@@ -25,22 +136,24 @@ function addSize() {
     row += '</td>';
     row += '</tr>';
 
-    jQuery(this).parent().parent().before(row);
+    jQuery(this).closest( 'tr' ).before(row);
     i++;
 }
 
-function getPhp() {
+function getPhp(e) {
+	e.preventDefault();
     jQuery.ajax({
         url: sis.ajaxUrl,
         type: "POST",
-        data: "action=get_sizes",
+        data: { action : "get_sizes" },
         success: function(result) {
             jQuery('#get_php').nextAll('code').html('<br />' + result).show().css( { 'display' : 'block' } );
         }
     });
 }
 
-function registerSize() {
+function registerSize(e) {
+	e.preventDefault();
     name = jQuery(this).closest('tr').children('th').find('input').val();
     id = jQuery(this).closest('tr').children('th').find('input').attr('id');
 	
@@ -72,87 +185,10 @@ function registerSize() {
     output += '</label>';
     output += '</td>';
 
-    jQuery('#' + id).parent().parent().html(output);
+    jQuery('#' + id).closest( 'tr' ).html(output);
 
 }
 
 function deleteSize() {
-    jQuery(this).parent().parent().remove();
-}
-
-////////////// Image resizing /////////////
-function setMessage(msg) {
-    jQuery("#regenerate_message").html(msg).addClass('updated').addClass('fade').show();
-    jQuery(".progress").progressbar();
-}
-
-function regenerate() {
-    jQuery("#ajax_thumbnail_rebuild").attr("disabled", true);
-    setMessage("<p>" + sis.reading + "</p>");
-
-    inputs = jQuery('input.thumbnails:checked');
-    var thumbnails = '';
-    if (inputs.length != jQuery('input.thumbnails[type=checkbox]').length) {
-        inputs.each(function() {
-            thumbnails += '&thumbnails[]=' + jQuery(this).val();
-        });
-    }
-
-    inputs = jQuery('input.post_types:checked');
-    var post_types = '';
-    if (inputs.length != jQuery('input.post_types[type=checkbox]').length) {
-        inputs.each(function() {
-            post_types += '&post_types[]=' + jQuery(this).val();
-        });
-    }
-
-    jQuery.ajax({
-        url: sis.ajaxUrl,
-        type: "POST",
-        data: "action=ajax_thumbnail_rebuild&do=getlist" + post_types,
-        success: function(result) {
-            var list = eval(result);
-            var curr = 0;
-			jQuery('.progress').show();
-			
-            function regenItem() {
-                if (!list) {
-                    jQuery("#ajax_thumbnail_rebuild").removeAttr("disabled");
-                    jQuery(".progress, #thumb").hide();
-
-                    setMessage(sis.noMedia);
-                    return false;
-                }
-                percent = (curr / list.length) * 100;
-                jQuery(".progress").progressbar("value", percent);
-                jQuery(".progress-percent").html(Math.round(percent) + "%").animate( { left: Math.round( percent )-2.5 + "%" }, 500 );
-                if (curr >= list.length) {
-                    jQuery("#ajax_thumbnail_rebuild").removeAttr("disabled");
-                    jQuery(".progress, #thumb").hide();
-
-                    setMessage(sis.done);
-                    return;
-                }
-                setMessage(sis.regenerating + (curr + 1) + sis.of + list.length + " (" + list[curr].title + ")...");
-
-                jQuery.ajax({
-                    url: sis.ajaxUrl,
-                    type: "POST",
-                    data: "action=ajax_thumbnail_rebuild&do=regen&id=" + list[curr].id + thumbnails,
-                    success: function(result) {
-                        jQuery("#thumb").show();
-                        jQuery("#thumb-img").attr("src", result);
-
-                        curr = curr + 1;
-                        regenItem();
-                    }
-                });
-            }
-
-            regenItem();
-        },
-        error: function(request, status, error) {
-            setMessage("Error " + request.status);
-        }
-    });
+    jQuery(this).closest( 'tr' ).remove();
 }

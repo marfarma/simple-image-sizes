@@ -12,6 +12,8 @@ Class SISAdmin{
 		// Add ajax action
 		add_action('wp_ajax_ajax_thumbnail_rebuild', array( &$this, 'ajaxThumbnailRebuildAjax' ) );
 		add_action('wp_ajax_get_sizes', array( &$this, 'ajaxGetSizes' ) );
+		add_action('wp_ajax_add_size', array( &$this, 'ajaxAddSize' ) );
+		add_action('wp_ajax_remove_size', array( &$this, 'ajaxRemoveSize' ) );
 		
 		// Add image sizes in the form
 		add_filter( 'attachment_fields_to_edit', array( &$this, 'sizesInForm' ), 11, 2 ); // Add our sizes to media forms
@@ -30,7 +32,7 @@ Class SISAdmin{
 	public function registerScripts($hook_suffix = '' ) {
 		if( isset( $hook_suffix ) && $hook_suffix == 'options-media.php' ) {
 			// Add javascript
-			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.min.js', array('jquery'), '1.5' );
+			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.js', array('jquery'), '1.5' );
 			wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.progressbar.min.js', array(), '1.8.10' );
 			
 			// Add javascript translation
@@ -137,13 +139,13 @@ Class SISAdmin{
 	 	register_setting( 'media', 'custom_image_sizes' );
 	 	
 	 	// Add the button
-	 	add_settings_field( 'add_size', __( 'Add a new size', 'sis' ), array( &$this, 'addSize' ), 'media' );
+	 	add_settings_field( 'add_size', __( 'Add a new size', 'sis' ), array( &$this, 'addSizeButton' ), 'media' );
 		
 		// Add legend
 	 	add_settings_field( 'add_legend', __( 'Legend of the sizes', 'sis' ), array( &$this, 'addLegend' ), 'media' );
 	 	
-	 	// Add size button
-	 	add_settings_field( 'get_php', __( 'Get php for theme', 'sis' ), array( &$this, 'getPhp' ), 'media' );
+	 	// Add php button
+	 	add_settings_field( 'get_php', __( 'Get php for theme', 'sis' ), array( &$this, 'getPhpButton' ), 'media' );
 	 	
 	 	// Add section for the thumbnail regeneration
 	 	add_settings_section( 'thumbnail_regenerate', __( 'Thumbnail regeneration', 'sis' ), array( &$this, 'thumbnailRegenerate' ), 'media' );
@@ -160,6 +162,7 @@ Class SISAdmin{
  	public function imageSizes( $args ) {
  		// Get the options
 		$sizes = (array)get_option( 'custom_image_sizes' );
+		var_dump($sizes);
 		
 		$height 	= 	isset( $sizes[$args['name']]['h'] )? $sizes[$args['name']]['h'] : $args['height'] ;
 		$width 		= 	isset( $sizes[$args['name']]['w'] )? $sizes[$args['name']]['w'] : $args['width'] ;
@@ -195,6 +198,20 @@ Class SISAdmin{
 		</label>
 	<?php }
 	
+	public function ajaxAddSize() {
+		$sizes = (array)get_option( 'custom_image_sizes' );
+		$sizes['test'] = array( 'custom' => 1, 'w' => 150 , 'h' => 150, 'c' => 1 );
+		update_option( 'custom_image_sizes', $sizes );
+		die();
+	}
+	
+		public function ajaxRemoveSize() {
+		$sizes = (array)get_option( 'custom_image_sizes' );
+		unset( $sizes['test'] );
+		update_option( 'custom_image_sizes', $sizes );
+		die();
+	}
+	
 	/**
 	 * Add the button to add a size
 	 * 
@@ -202,7 +219,7 @@ Class SISAdmin{
 	 * @return void
  	 * @author Nicolas Juen
 	 */
-	public function addSize() { ?>
+	public function addSizeButton() { ?>
 		<input type="button" class="button-secondary action" id="add_size" value="<?php _e( 'Add a new size of thumbnail', 'sis'); ?>" />
 	<?php
 	}	
@@ -214,7 +231,7 @@ Class SISAdmin{
 	 * @return void
  	 * @author Nicolas Juen
 	 */
-	public function getPhp() { ?>
+	public function getPhpButton() { ?>
 		<input type="button" class="button-secondary action" id="get_php" value="<?php _e( 'Get the PHP for the theme', 'sis'); ?>" />
 		<p> <?php _e( 'Copy and paste the code below into your Wordpress theme function file if you wanted to save them and deactivate the plugin.', 'sis'); ?> </p>
 		<code></code>
@@ -361,7 +378,7 @@ Class SISAdmin{
 				<div class="progress-percent" ></div>
 			</div>
 			<div id="thumb"><h4><?php _e( 'Last image:', 'sis'); ?></h4><img id="thumb-img" /></div>
-			<input type="button" onClick="javascript:regenerate();" class="button" name="ajax_thumbnail_rebuild" id="ajax_thumbnail_rebuild" value="<?php _e( 'Regenerate Thumbnails', 'sis' ) ?>" />
+			<input type="button" class="button" name="ajax_thumbnail_rebuild" id="ajax_thumbnail_rebuild" value="<?php _e( 'Regenerate Thumbnails', 'sis' ) ?>" />
 		</div>
 		<?php
 	}
@@ -398,7 +415,7 @@ Class SISAdmin{
 		
 		$crop = ( $crop == 0 )? 'false' : 'true' ;
 		?>
-			add_image_size( '<?php echo $s; ?>', '<?php echo $width; ?>', '<?php echo $height; ?>', '<?php echo $crop ?>' );<br />
+			add_image_size( '<?php echo $s; ?>', '<?php echo $width; ?>', '<?php echo $height; ?>', <?php echo $crop ?> );<br />
 		<?php endforeach;
 		
 		die();
@@ -474,7 +491,7 @@ Class SISAdmin{
 			}
 			
 			// Display the attachment url for feedback
-			die( wp_get_attachment_thumb_url( $id ) );
+			die( json_encode( array( array( 'src' => wp_get_attachment_thumb_url( $id ), 'title' => get_the_title( $id ) ) ) ) );
 		}
 	}
 

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple image sizes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-14 01:15+0100\n"
-"PO-Revision-Date: 2011-04-14 01:15+0100\n"
+"POT-Creation-Date: 2011-03-16 23:32+0100\n"
+"PO-Revision-Date: 2011-03-16 23:32+0100\n"
 "Last-Translator: Nicolas JUEN <njuen@beapi.fr>\n"
 "Language-Team: Beapi <njuen@beapi.fr>\n"
 "MIME-Version: 1.0\n"
@@ -18,148 +18,128 @@ msgstr ""
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: inc/class.admin.php:55
+#: inc/class.admin.php:50
 msgid "Reading attachments..."
 msgstr "Chargement des médias..."
 
-#: inc/class.admin.php:56
-#: inc/class.admin.php:177
+#: inc/class.admin.php:51
+#: inc/class.admin.php:148
 msgid "Maximum width"
 msgstr "Largeur maximum"
 
-#: inc/class.admin.php:57
-#: inc/class.admin.php:182
+#: inc/class.admin.php:52
+#: inc/class.admin.php:153
 msgid "Maximum height"
 msgstr "Hauteur maximum"
 
-#: inc/class.admin.php:58
-#: inc/class.admin.php:188
-#: inc/class.admin.php:257
-#: inc/class.admin.php:316
+#: inc/class.admin.php:53
+#: inc/class.admin.php:159
+#: inc/class.admin.php:214
+#: inc/class.admin.php:273
 msgid "Crop ?"
 msgstr "Rogner ?"
 
-#: inc/class.admin.php:59
+#: inc/class.admin.php:54
 msgid " of "
 msgstr " de "
 
-#: inc/class.admin.php:60
-#: inc/class.admin.php:192
+#: inc/class.admin.php:55
+#: inc/class.admin.php:163
 msgid "Delete"
 msgstr "Supprimer"
 
-#: inc/class.admin.php:61
+#: inc/class.admin.php:56
 msgid "No media in your site to regenerate !"
 msgstr "Pas de médias à regénérer !"
 
-#: inc/class.admin.php:62
+#: inc/class.admin.php:57
 msgid "Regenerating "
 msgstr "Regénération "
 
-#: inc/class.admin.php:63
+#: inc/class.admin.php:58
 msgid "Validate image size name"
 msgstr "Valider le nom de la taille d'image"
 
-#: inc/class.admin.php:64
+#: inc/class.admin.php:59
 msgid "Done."
 msgstr "Fini."
 
-#: inc/class.admin.php:65
+#: inc/class.admin.php:60
 msgid "Size"
 msgstr "Taille "
 
-#: inc/class.admin.php:66
-msgid "Don't use the basic Wordpress thumbnail size name, use the form above to edit them"
-msgstr "N'utilisez pas les noms de base de Wordpress pour vos tailles, utilisez le formulaire ci-dessus pour les éditer. "
-
-#: inc/class.admin.php:84
-msgid "Settings"
-msgstr "Paramètres"
-
-#: inc/class.admin.php:132
+#: inc/class.admin.php:106
 msgid "Size "
 msgstr "Taille "
 
-#: inc/class.admin.php:140
+#: inc/class.admin.php:114
 msgid "Add a new size"
 msgstr "Ajouter une nouvelle taille"
 
-#: inc/class.admin.php:143
+#: inc/class.admin.php:117
 msgid "Legend of the sizes"
 msgstr "Légende des tailles"
 
-#: inc/class.admin.php:146
-msgid "Get php for theme"
-msgstr "Code PHP pour le thème"
-
-#: inc/class.admin.php:149
+#: inc/class.admin.php:120
 msgid "Thumbnail regeneration"
 msgstr "Régénération des vignettes"
 
-#: inc/class.admin.php:170
+#: inc/class.admin.php:141
 msgid "Custom size"
 msgstr "Taille personnelle"
 
-#: inc/class.admin.php:173
+#: inc/class.admin.php:144
 msgid "Theme size"
 msgstr "Taille de thème"
 
-#: inc/class.admin.php:206
+#: inc/class.admin.php:177
 msgid "Add a new size of thumbnail"
 msgstr "Ajouter une nouvelle taille de vignette"
 
-#: inc/class.admin.php:218
-msgid "Get the PHP for the theme"
-msgstr "Récupérer le code PHP pour le thème"
-
-#: inc/class.admin.php:219
-msgid "Copy and paste the code below into your Wordpress theme function file if you wanted to save them and deactivate the plugin."
-msgstr "Copiez et collez dans votre fichier de fonction de votre thème Wordpress si vous voulez les conserver et désactiver le plugin."
-
-#: inc/class.admin.php:232
+#: inc/class.admin.php:189
 msgid "The images created on your theme are <span style=\"color:orange\">orange</span> and your custom size are <span style=\"color:green\"> green </span>."
 msgstr "Les tailles d'images crées par votre thème sont en <span style=\"color:orange\">orange</span> et vos tailles personnalisés sont en <span style=\"color:green\"> vert </span>."
 
-#: inc/class.admin.php:249
+#: inc/class.admin.php:206
 msgid "Select which thumbnails you want to rebuild:"
 msgstr "Sélectionnez les tailles de vignettes à régénérer"
 
-#: inc/class.admin.php:253
-#: inc/class.admin.php:312
-#: inc/class.admin.php:325
-#: inc/class.admin.php:350
+#: inc/class.admin.php:210
+#: inc/class.admin.php:269
+#: inc/class.admin.php:282
+#: inc/class.admin.php:307
 msgid "Resize ?"
 msgstr "Regénérer ?"
 
-#: inc/class.admin.php:254
-#: inc/class.admin.php:313
+#: inc/class.admin.php:211
+#: inc/class.admin.php:270
 msgid "Size name"
 msgstr "Nom de la taille"
 
-#: inc/class.admin.php:255
-#: inc/class.admin.php:314
+#: inc/class.admin.php:212
+#: inc/class.admin.php:271
 msgid "Width"
 msgstr "Largeur"
 
-#: inc/class.admin.php:256
-#: inc/class.admin.php:315
+#: inc/class.admin.php:213
+#: inc/class.admin.php:272
 msgid "Height"
 msgstr "Hauteur"
 
-#: inc/class.admin.php:321
+#: inc/class.admin.php:278
 msgid "Select which post type source thumbnails you want to rebuild:"
 msgstr "Sélectionnez quelles vignettes de quel type de contenu vous souhaitez régénérer : "
 
-#: inc/class.admin.php:326
-#: inc/class.admin.php:351
+#: inc/class.admin.php:283
+#: inc/class.admin.php:308
 msgid "Post type"
 msgstr "Type de contenu"
 
-#: inc/class.admin.php:363
+#: inc/class.admin.php:320
 msgid "Last image:"
 msgstr "Dernière image :"
 
-#: inc/class.admin.php:364
+#: inc/class.admin.php:321
 msgid "Regenerate Thumbnails"
 msgstr "Régénérer les vignettes"
 

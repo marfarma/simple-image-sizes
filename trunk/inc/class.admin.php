@@ -1,5 +1,5 @@
 <?php
-Class SISAdmin{
+Class SISAdmin {
 	
 	// Original sizes
 	public $original = array( 'thumbnail', 'medium', 'large' );
@@ -32,7 +32,7 @@ Class SISAdmin{
 	public function registerScripts($hook_suffix = '' ) {
 		if( isset( $hook_suffix ) && $hook_suffix == 'options-media.php' ) {
 			// Add javascript
-			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.js', array('jquery'), '1.5' );
+			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.js', array('jquery'), SIS_VERSION );
 			wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.progressbar.min.js', array(), '1.8.10' );
 			
 			// Add javascript translation
@@ -40,7 +40,7 @@ Class SISAdmin{
 			
 			// Add CSS
 			wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/jquery-ui-1.8.10.progressbar.css', array(), '1.8.10' );
-			wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), '1.5' );
+			wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), SIS_VERSION );
 		}
 	}
 	
@@ -139,13 +139,13 @@ Class SISAdmin{
 	 	register_setting( 'media', 'custom_image_sizes' );
 	 	
 	 	// Add the button
-	 	add_settings_field( 'add_size', __( 'Add a new size', 'sis' ), array( &$this, 'addSizeButton' ), 'media' );
+	 	add_settings_field( 'add_size_button', __( 'Add a new size', 'sis' ), array( &$this, 'addSizeButton' ), 'media' );
 		
 		// Add legend
 	 	add_settings_field( 'add_legend', __( 'Legend of the sizes', 'sis' ), array( &$this, 'addLegend' ), 'media' );
 	 	
 	 	// Add php button
-	 	add_settings_field( 'get_php', __( 'Get php for theme', 'sis' ), array( &$this, 'getPhpButton' ), 'media' );
+	 	add_settings_field( 'get_php_button', __( 'Get php for theme', 'sis' ), array( &$this, 'getPhpButton' ), 'media' );
 	 	
 	 	// Add section for the thumbnail regeneration
 	 	add_settings_section( 'thumbnail_regenerate', __( 'Thumbnail regeneration', 'sis' ), array( &$this, 'thumbnailRegenerate' ), 'media' );
@@ -162,13 +162,13 @@ Class SISAdmin{
  	public function imageSizes( $args ) {
  		// Get the options
 		$sizes = (array)get_option( 'custom_image_sizes' );
-		var_dump($sizes);
 		
 		$height 	= 	isset( $sizes[$args['name']]['h'] )? $sizes[$args['name']]['h'] : $args['height'] ;
 		$width 		= 	isset( $sizes[$args['name']]['w'] )? $sizes[$args['name']]['w'] : $args['width'] ;
 		$crop 		= 	isset( $sizes[$args['name']]['c'] ) && !empty( $sizes[$args['name']]['c'] )? '1' : '0' ;
 		$custom 	= 	( isset( $sizes[$args['name']]['custom'] ) && !empty( $sizes[$args['name']]['custom'] ) )? '1' : '0' ;
 		?>
+		<input type="hidden" value="<?php echo $args['name']; ?>" name="image_name" />
 		<?php if( $custom ): ?>
 			<span class="custom_size"> <?php _e( 'Custom size', 'sis'); ?> : </span>
 			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][custom]' ?>" type="hidden" id="<?php echo 'custom_image_sizes['.$args['name'].'][custom]' ?>" value="1" />
@@ -192,24 +192,57 @@ Class SISAdmin{
 			<input type='checkbox' <?php checked( $crop, 1 ) ?> name="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" value="1" />
 		</label>
 		<label class="ui-state-default ui-corner-all delete_size">
-			<?php _e( 'Delete', 'sis'); ?> 
+			<span><?php _e( 'Delete', 'sis'); ?></span>
 			<div class="ui-icon ui-icon-circle-close delete_size_icon">
+			</div>
+		</label>
+		<label class="ui-state-default ui-corner-all validate_size">
+			<span><?php _e( 'Update', 'sis'); ?> </span>
+			<div class="ui-icon ui-icon-circle-check">
 			</div>
 		</label>
 	<?php }
 	
+	
+	
 	public function ajaxAddSize() {
+		
+		// Get old options
 		$sizes = (array)get_option( 'custom_image_sizes' );
-		$sizes['test'] = array( 'custom' => 1, 'w' => 150 , 'h' => 150, 'c' => 1 );
-		update_option( 'custom_image_sizes', $sizes );
+		
+		// Check the cropping
+		if( $_POST['crop'] != 'true' && $_POST['crop'] != 'false' ) {
+			$_POST['crop'] = true;
+		}
+		
+		$name = apply_filters( 'sanitize_title', $_POST['name'] );
+		$values = array( 'custom' => 1, 'w' => intval( $_POST['width'] ) , 'h' => intval( $_POST['height'] ), 'c' => $_POST['crop'] );
+		
+		// If the sizes have not changed return -1
+		if( $sizes[$name] == $values ) {
+			echo 2;
+			die();
+		}
+		
+		// Put the new values
+		$sizes[$name] = $values;
+		
+		// display update result
+		echo (int)update_option( 'custom_image_sizes', $sizes );
 		die();
 	}
 	
-		public function ajaxRemoveSize() {
+	public function ajaxRemoveSize() {
+		// Get old options
 		$sizes = (array)get_option( 'custom_image_sizes' );
-		unset( $sizes['test'] );
-		update_option( 'custom_image_sizes', $sizes );
-		die();
+		
+		// Remove the size
+		unset( $sizes[apply_filters( 'sanitize_title', $_POST['name'] )] );
+		unset( $sizes[0] );
+		
+		// Display the results
+		echo (int)update_option( 'custom_image_sizes', $sizes );
+		die();		
 	}
 	
 	/**

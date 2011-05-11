@@ -96,12 +96,174 @@ var regenerate = {
 		jQuery(".progress, #thumb").hide();
 	}
 }
+
+var sizes = {
+	i: 0,
+	add: function(e,el) {
+		e.preventDefault();
+		var row = '';
+	    row = '<tr valign="top" class="new_size_' + this.i + '">';
+	    row += '<th scope="row">';
+	    row += '<input type="text" value="thumbnail-name" id="new_size_' + this.i + '" />';
+	    row += '</th>';
+	    row += '<td>';
+	    row += '<input type="button" class="button-secondary action add_size_name" id="validate_' + this.i + '" value="' + sis.validate + '" />';
+	    row += '</td>';
+	    row += '</tr>';
+	    jQuery(el).closest( 'tr' ).before(row);
+	    
+	    this.i++;
+	},
+	register: function( e, el ) {
+		e.preventDefault();
+	    var name = jQuery(el).closest('tr').children('th').find('input').val();
+	    var id = jQuery(el).closest('tr').children('th').find('input').attr('id');
+		
+		if( name == 'thumbnail' || name == "medium" || name == "large" ) {
+			alert( sis.notOriginal );
+			return false;
+		}
+		
+	    output = '<th scope="row">';
+	    output += sis.size + ' ' + name;
+	    output += '</th>';
+	    output += '<td>';
+	    output += '<input type="hidden" value="'+name+'" name="image_name" />';
+	    output += '<input name="custom_image_sizes[' + name + '][custom]" type="hidden" id="custom_image_sizes[' + name + '][custom]" value="1" />';
+	    output += '<label for="custom_image_sizes[' + name + '][w]">';
+	    output += sis.maximumWidth + ' <input name="custom_image_sizes[' + name + '][w] " class="w" type="text" id="custom_image_sizes[' + name + '][w]" value="" class="small-text" />'
+	    output += '</label>';
+	
+	    output += '<label for="custom_image_sizes[' + name + '][h]">';
+	    output += sis.maximumHeight + ' <input name="custom_image_sizes[' + name + '][h]" class="h" type="text" id="custom_image_sizes[' + name + '][h]" value="" class="small-text" />';
+	    output += '</label>';
+	
+	    output += '<label class="crop"> '
+	    output += sis.crop + ' <input type="checkbox" name="custom_image_sizes[' + name + '][c]" class="c" value="1" /> </label>';
+		    
+	   	output += '<label class="ui-state-default ui-corner-all validate_size" style="width: 90px; padding: 0px; display:inline-block; position:relative; text-indent:16px;text-align:center">';
+	    output += '<span class="validateText">Validate</span>';
+	    output += '<div class="ui-icon ui-icon-circle-check" style="float: right; top: 2px; position:absolute;left: 0px;">';
+	    output += '</div>';
+	    output += '</label>';
+	    
+	    output += '<label class="ui-state-default ui-corner-all delete_size" style="width: 90px; padding: 0px; display:inline-block; position:relative; text-indent:16px;text-align:center">';
+	    output += '<span class="deleteText">'+sis.deleteImage+'</span>';
+	    output += '<div class="ui-icon ui-icon-circle-close" style="float: right; top: 2px; position:absolute;left: 0px;">';
+	    output += '</div>';	   
+	    output += '</label>';
+	    
+	    output += '</td>';
+		
+	    jQuery('#' + id).closest( 'tr' ).html(output);
+	},
+	delete: function( el ) {
+	    jQuery( el ).closest( 'tr' ).remove();
+	    this.removeFromArray( el );
+	},
+	getPhp : function(e) {
+		e.preventDefault();
+	    jQuery.ajax({
+	        url: sis.ajaxUrl,
+	        type: "POST",
+	        data: { action : "get_sizes" },
+	        beforeSend: function() {
+	        },
+	        success: function(result) {
+	            jQuery('#get_php').nextAll('code').html('<br />' + result).show().css( { 'display' : 'block' } );
+	        }
+	    });
+	},
+	ajaxRegister: function( e,el ) {
+		e.preventDefault();
+		var self = this;
+		var parent = jQuery( el ).closest('tr');
+		var n = parent.find('input[name=image_name]').val();
+		var c = parent.find( 'input.c' ).attr( 'checked' );
+		var w = parseInt( parent.find( 'input.w' ).val() );
+		var h = parseInt( parent.find( 'input.h' ).val() );
+		
+		jQuery.ajax({
+	        url: sis.ajaxUrl,
+	        type: "POST",
+	        data: { action : "add_size", width: w, height: h, crop: 'lotherfucker', name: n },
+	        beforeSend: function() {
+	        	parent.removeClass( 'errorAdding notChangedAdding successAdding' );
+	        	parent.addClass( 'addPending' );
+	        },
+	        success: function(result) {
+	        	var class = '';
+	        	parent.removeClass( 'addPending' );
+	        	
+	        	if( result == 0 ) {
+	        		class = 'errorAdding';
+	        	} else if( result == 2 ) {
+	        		class = 'notChangedAdding';
+	        	} else {
+	        		class = 'successAdding';
+	        		self.addToArray( n,w,h,c );
+	        	}
+
+	        	parent.addClass( class );
+	        	parent.find( '.validateText' ).text('Update') ;
+	        }
+	    });	
+	},
+	ajaxUnregister: function(e, el) {
+		e.preventDefault();
+		var self = this;
+		var n =  jQuery( el ).closest('tr').find('input[name=image_name]').val();
+		
+		jQuery.ajax({
+	        url: sis.ajaxUrl,
+	        type: "POST",
+	        data: { action : "remove_size", name: n },
+	        beforeSend: function() {
+	        	console.log( 'removing' );
+	        },
+	        success: function(result) {
+				self.delete( el );	
+	        }
+	    });	
+	},
+	addToArray: function( n,w,h,c ) {
+		var testRow = jQuery( '#sis-regen .wrapper > table > tbody input[value="'+n+'"]' );
+		var newRow = '';
+		
+		if( testRow.length != 0 )
+			newRow = testRow.closest( 'tr' );
+		else
+			newRow = jQuery( '#sis-regen .wrapper > table > tbody > tr:first' ).clone();
+		
+		newRow.find( 'td > label' ).attr( 'for', n )
+		.end()
+		.find( 'input.thumbnails' ).val( n ).attr( 'id', n ).end()
+		.find( 'td:nth-child(2) > label' ).text( n )
+		.end()
+		.find( 'td:nth-child(3) > label' ).text( w+'px' )
+		.end()
+		.find( 'td:nth-child(4) > label' ).text( h+'px' )
+		.end()
+		.find( 'td:nth-child(5) > label' ).text( c );
+		
+		if( testRow.length == 0 )
+			newRow.appendTo( '#sis-regen .wrapper > table > tbody' );	
+	},
+	removeFromArray : function( el ) {
+		var n = jQuery( el ).closest( 'tr' ).find( 'input[name=image_name]' ).val();
+		console.log(n);
+		jQuery( '#sis-regen .wrapper > table > tbody input[value="'+n+'"]' ).closest( 'tr' ).remove();
+	}
+}
 jQuery(function() {
 
-	jQuery( '#ajax_thumbnail_rebuild' ).click( regen );
-    jQuery('#add_size').click(addSize);
-    jQuery('.add_size_name').live('click', registerSize);
-    jQuery('.delete_size').live('click', deleteSize);
+	jQuery( '#ajax_thumbnail_rebuild' ).click( function(){ regenerate.startRegenerating(); } );	
+    jQuery('#add_size').click(function( e ){ sizes.add( e, this ); });
+    jQuery('.add_size_name').live( 'click',function( e ){ sizes.register( e, this ); });
+    jQuery('.delete_size').live('click', function( e ){ sizes.ajaxUnregister( e, this ); });
+    jQuery('.validate_size').live('click', function( e ){ sizes.ajaxRegister( e, this ); });
+    jQuery('#get_php').click( function( e ){ sizes.getPhp( e ) } );
+    
     jQuery('span.custom_size').closest('tr').children('th').css({
         'color': 'green'
     });
@@ -109,7 +271,6 @@ jQuery(function() {
         'color': 'orange'
     });
 	
-    jQuery('#get_php').click(getPhp);
 	jQuery('#get_php').nextAll('code').hide();
 	
 	jQuery('.progress').hide();
@@ -120,75 +281,3 @@ jQuery(function() {
 		jQuery(this).find( '.msg' ).append("<li>Error requesting page " + settings.url + ", status "+request.status+" : "+request.statusText+"</li>").end().slideDown( 200 ).delay( 5000 ).slideUp( 200 );
 	});
 });
-
-function regen(){
-	regenerate.startRegenerating();
-}
-
-function addSize(e) {
-	e.preventDefault();
-    row = '<tr valign="top" class="new_size_' + i + '">';
-    row += '<th scope="row">';
-    row += '<input type="text" value="thumbnail-name" id="new_size_' + i + '" />';
-    row += '</th>';
-    row += '<td>';
-    row += '<input type="button" class="button-secondary action add_size_name" id="validate_' + i + '" value="' + sis.validate + '" />';
-    row += '</td>';
-    row += '</tr>';
-
-    jQuery(this).closest( 'tr' ).before(row);
-    i++;
-}
-
-function getPhp(e) {
-	e.preventDefault();
-    jQuery.ajax({
-        url: sis.ajaxUrl,
-        type: "POST",
-        data: { action : "get_sizes" },
-        success: function(result) {
-            jQuery('#get_php').nextAll('code').html('<br />' + result).show().css( { 'display' : 'block' } );
-        }
-    });
-}
-
-function registerSize(e) {
-	e.preventDefault();
-    name = jQuery(this).closest('tr').children('th').find('input').val();
-    id = jQuery(this).closest('tr').children('th').find('input').attr('id');
-	
-	if( name == 'thumbnail' || name == "medium" || name == "large" ) {
-		alert( sis.notOriginal );
-		return false;
-	}
-	
-    output = '<th scope="row">';
-    output += sis.size + ' ' + name;
-    output += '</th>';
-    output += '<td>';
-    output += '<input name="custom_image_sizes[' + name + '][custom]" type="hidden" id="custom_image_sizes[' + name + '][custom]" value="1" />';
-    output += '<label for="custom_image_sizes[' + name + '][w]">';
-    output += sis.maximumWidth + ' <input name="custom_image_sizes[' + name + '][w] " type="text" id="custom_image_sizes[' + name + '][w]" value="" class="small-text" />'
-    output += '</label>';
-
-    output += '<label for="custom_image_sizes[' + name + '][h]">';
-    output += sis.maximumHeight + ' <input name="custom_image_sizes[' + name + '][h]" type="text" id="custom_image_sizes[' + name + '][h]" value="" class="small-text" />';
-    output += '</label>';
-
-    output += '<label class="crop"> '
-    output += sis.crop + ' <input type="checkbox" name="custom_image_sizes[' + name + '][c]" value="1" /> </label>';
-
-    output += '<label class="ui-state-default ui-corner-all delete_size" style="width: 90px; padding: 0px; display:inline-block; position:relative; text-indent:16px;text-align:center">';
-    output += sis.deleteImage;
-    output += '<div class="ui-icon ui-icon-circle-close" style="float: right; top: 2px; position:absolute;left: 0px;">';
-    output += '</div>';
-    output += '</label>';
-    output += '</td>';
-
-    jQuery('#' + id).closest( 'tr' ).html(output);
-
-}
-
-function deleteSize() {
-    jQuery(this).closest( 'tr' ).remove();
-}

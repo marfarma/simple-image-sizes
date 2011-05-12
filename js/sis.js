@@ -141,15 +141,15 @@ var sizes = {
 	    output += '<label class="crop"> '
 	    output += sis.crop + ' <input type="checkbox" name="custom_image_sizes[' + name + '][c]" class="c" value="1" /> </label>';
 		    
-	   	output += '<label class="ui-state-default ui-corner-all validate_size" style="width: 90px; padding: 0px; display:inline-block; position:relative; text-indent:16px;text-align:center">';
+	   	output += '<label class="ui-state-default ui-corner-all validate_size">';
 	    output += '<span class="validateText">Validate</span>';
-	    output += '<div class="ui-icon ui-icon-circle-check" style="float: right; top: 2px; position:absolute;left: 0px;">';
+	    output += '<div class="ui-icon ui-icon-circle-check delete_size_icon" >';
 	    output += '</div>';
 	    output += '</label>';
 	    
-	    output += '<label class="ui-state-default ui-corner-all delete_size" style="width: 90px; padding: 0px; display:inline-block; position:relative; text-indent:16px;text-align:center">';
+	    output += '<label class="ui-state-default ui-corner-all delete_size" >';
 	    output += '<span class="deleteText">'+sis.deleteImage+'</span>';
-	    output += '<div class="ui-icon ui-icon-circle-close" style="float: right; top: 2px; position:absolute;left: 0px;">';
+	    output += '<div class="ui-icon ui-icon-circle-close validate_size_icon" >';
 	    output += '</div>';	   
 	    output += '</label>';
 	    
@@ -164,7 +164,7 @@ var sizes = {
 	getPhp : function(e) {
 		e.preventDefault();
 	    jQuery.ajax({
-	        url: sis.ajaxUrl,
+	        url: 'fff',
 	        type: "POST",
 	        data: { action : "get_sizes" },
 	        beforeSend: function() {
@@ -186,7 +186,7 @@ var sizes = {
 		jQuery.ajax({
 	        url: sis.ajaxUrl,
 	        type: "POST",
-	        data: { action : "add_size", width: w, height: h, crop: 'lotherfucker', name: n },
+	        data: { action : "add_size", width: w, height: h, crop: c, name: n },
 	        beforeSend: function() {
 	        	parent.removeClass( 'errorAdding notChangedAdding successAdding' );
 	        	parent.addClass( 'addPending' );
@@ -251,7 +251,6 @@ var sizes = {
 	},
 	removeFromArray : function( el ) {
 		var n = jQuery( el ).closest( 'tr' ).find( 'input[name=image_name]' ).val();
-		console.log(n);
 		jQuery( '#sis-regen .wrapper > table > tbody input[value="'+n+'"]' ).closest( 'tr' ).remove();
 	}
 }
@@ -259,9 +258,14 @@ jQuery(function() {
 
 	jQuery( '#ajax_thumbnail_rebuild' ).click( function(){ regenerate.startRegenerating(); } );	
     jQuery('#add_size').click(function( e ){ sizes.add( e, this ); });
+    
     jQuery('.add_size_name').live( 'click',function( e ){ sizes.register( e, this ); });
+    
+    
     jQuery('.delete_size').live('click', function( e ){ sizes.ajaxUnregister( e, this ); });
     jQuery('.validate_size').live('click', function( e ){ sizes.ajaxRegister( e, this ); });
+    
+    
     jQuery('#get_php').click( function( e ){ sizes.getPhp( e ) } );
     
     jQuery('span.custom_size').closest('tr').children('th').css({
@@ -270,14 +274,30 @@ jQuery(function() {
     jQuery('span.theme_size').closest('tr').children('th').css({
         'color': 'orange'
     });
+    
+    // UI
+	jQuery(".delete_size").button({
+		icons: {
+			primary: 'ui-icon-circle-close'
+		}
+	});
+	jQuery(".add_size").button({
+		icons: {
+			primary: 'ui-icon-circle-check'
+		}
+	});
+    jQuery(".crop").button();
+	jQuery('.progress').hide();
+	
+	
 	
 	jQuery('#get_php').nextAll('code').hide();
 	
-	jQuery('.progress').hide();
+
 	
 	jQuery( '<div class="ui-widget" id="msg"><div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"><p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span><strong>Alert:</strong> <ul class="msg" ></ul></p></div></div>').prependTo( "div#wpwrap" ).slideUp( 0 );
 	
 	jQuery("#msg").ajaxError(function(event, request, settings) {
-		jQuery(this).find( '.msg' ).append("<li>Error requesting page " + settings.url + ", status "+request.status+" : "+request.statusText+"</li>").end().slideDown( 200 ).delay( 5000 ).slideUp( 200 );
+		jQuery(this).find( '.msg' ).append("<li>Error requesting page " + settings.url + ", status "+request.status+" : "+request.statusText+"</li>").end().stop( false, false).slideDown( 200 ).delay( 5000 ).slideUp( 200 );
 	});
 });

@@ -1,4 +1,5 @@
-.delete_size {
+/*
+.ui-button {
 	width: 90px; 
 	padding: 0px; 
 	display:inline-block; 
@@ -7,13 +8,16 @@
 	margin-right:5px;
 	text-align:center
 }
+*/
 
-.delete_size_icon {
+/*
+.ui-icon {
 	float: right; 
 	top: 2px; 
 	position:absolute;
 	left: 0px;
 }
+*/
 
 .progress {
 	position:relative;
@@ -36,9 +40,11 @@
 		line-height: 39px;
 		text-align: center;
 	}
+/*
 
 	.progress.ui-widget-content { border: 1px solid #343434; background: #fcfdfd url(./images/progress-background.png) 50% bottom repeat-x; }
 	.progress .ui-widget-header { border: 1px solid #343434; background: #5c9ccc url(./images/progress-stripe.png) 50% 50% repeat-x; }
+*/
 
 .wrapper {
 	display: inline-block;

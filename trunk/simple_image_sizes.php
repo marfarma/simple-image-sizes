@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 define( 'SIS_URL', plugins_url('/', __FILE__) );
 define( 'SIS_DIR', dirname(__FILE__) );
 define( 'SIS_VERSION', '1.0.6' );
+define( 'SIS_OPTION', 'custom_image_sizes' );
 
 require_once( SIS_DIR . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'class.admin.php'  );
 require_once( SIS_DIR . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'class.client.php'  );

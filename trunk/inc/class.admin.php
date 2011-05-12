@@ -33,13 +33,14 @@ Class SISAdmin {
 		if( isset( $hook_suffix ) && $hook_suffix == 'options-media.php' ) {
 			// Add javascript
 			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.js', array('jquery'), SIS_VERSION );
-			wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.progressbar.min.js', array(), '1.8.10' );
-			
+			//wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.progressbar.min.js', array(), '1.8.10' );
+			wp_enqueue_script( 'jquery-ui-progressbar', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js', array(), '1.8.10' );
 			// Add javascript translation
 			wp_localize_script( 'sis_js', 'sis', $this->localizeVars() );
 			
 			// Add CSS
-			wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/jquery-ui-1.8.10.progressbar.css', array(), '1.8.10' );
+			//wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/jquery-ui-1.8.10.progressbar.css', array(), '1.8.10' );
+			wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/Aristo/jquery-ui-1.8.7.custom.css', array(), '1.8.10' );
 			wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), SIS_VERSION );
 		}
 	}
@@ -136,7 +137,7 @@ Class SISAdmin {
 	 	}
 	 	
 	 	// Register the setting for media option page
-	 	register_setting( 'media', 'custom_image_sizes' );
+	 	register_setting( 'media', SIS_OPTION );
 	 	
 	 	// Add the button
 	 	add_settings_field( 'add_size_button', __( 'Add a new size', 'sis' ), array( &$this, 'addSizeButton' ), 'media' );
@@ -161,7 +162,7 @@ Class SISAdmin {
  	 */
  	public function imageSizes( $args ) {
  		// Get the options
-		$sizes = (array)get_option( 'custom_image_sizes' );
+		$sizes = (array)get_option( SIS_OPTION );
 		
 		$height 	= 	isset( $sizes[$args['name']]['h'] )? $sizes[$args['name']]['h'] : $args['height'] ;
 		$width 		= 	isset( $sizes[$args['name']]['w'] )? $sizes[$args['name']]['w'] : $args['width'] ;
@@ -178,29 +179,20 @@ Class SISAdmin {
 		<?php endif; ?>
 		<label for="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>">
 			<?php _e( 'Maximum width', 'sis'); ?> 
-			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>" type="text" id="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>" value="<?php echo $width  ?>" class="small-text" />
+			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>" class='w' type="number" step='1' min='0' id="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>" value="<?php echo $width  ?>" class="small-text" />
 		</label>
 			
 		<label for="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>">
 			<?php _e( 'Maximum height', 'sis'); ?> 
-			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>" type="text" id="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>" value="<?php echo $height ?>" class="small-text" />
+			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>" class='h' type="number" step='1' min='0' id="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>" value="<?php echo $height ?>" class="small-text" />
 		</label>
-	
-		
-		<label class="crop">
-			<?php _e( 'Crop ?', 'sis'); ?> 
-			<input type='checkbox' <?php checked( $crop, 1 ) ?> name="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" value="1" />
-		</label>
-		<label class="ui-state-default ui-corner-all delete_size">
-			<span><?php _e( 'Delete', 'sis'); ?></span>
-			<div class="ui-icon ui-icon-circle-close delete_size_icon">
-			</div>
-		</label>
-		<label class="ui-state-default ui-corner-all validate_size">
-			<span><?php _e( 'Update', 'sis'); ?> </span>
-			<div class="ui-icon ui-icon-circle-check">
-			</div>
-		</label>
+	 
+		<div class="crop">
+			<input type='checkbox' id="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" <?php checked( $crop, 1 ) ?> name="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" value="1" />
+			<label for="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>"><?php _e( 'Crop ?', 'sis'); ?></label>
+		</div>
+		<div class="delete_size"><?php _e( 'Delete', 'sis'); ?></div>
+		<div class="add_size validate_size"><?php _e( 'Update', 'sis'); ?></div>
 	<?php }
 	
 	
@@ -208,18 +200,18 @@ Class SISAdmin {
 	public function ajaxAddSize() {
 		
 		// Get old options
-		$sizes = (array)get_option( 'custom_image_sizes' );
+		$sizes = (array)get_option( SIS_OPTION );
 		
-		// Check the cropping
-		if( $_POST['crop'] != 'true' && $_POST['crop'] != 'false' ) {
-			$_POST['crop'] = true;
-		}
+		// Check entries
+		$name = isset( $_POST['name'] ) ? apply_filters( 'sanitize_title', $_POST['name'] ) : '' ;
+		$height = !isset( $_POST['height'] )? 0 : (int)$_POST['height'];
+		$width =  !isset( $_POST['width'] )? 0 : (int)$_POST['width'];
+		$crop = !isset( $_POST['crop'] ) || ( $_POST['crop'] != 'true' && $_POST['crop'] != 'false' )? true : $_POST['crop'];
 		
-		$name = apply_filters( 'sanitize_title', $_POST['name'] );
-		$values = array( 'custom' => 1, 'w' => intval( $_POST['width'] ) , 'h' => intval( $_POST['height'] ), 'c' => $_POST['crop'] );
+		$values = array( 'custom' => 1, 'w' => $width , 'h' => $height, 'c' => $crop );
 		
-		// If the sizes have not changed return -1
-		if( $sizes[$name] == $values ) {
+		// If the size have not changed return 2
+		if( isset( $sizes[$name] ) && $sizes[$name] == $values ) {
 			echo 2;
 			die();
 		}
@@ -234,7 +226,7 @@ Class SISAdmin {
 	
 	public function ajaxRemoveSize() {
 		// Get old options
-		$sizes = (array)get_option( 'custom_image_sizes' );
+		$sizes = (array)get_option( SIS_OPTION );
 		
 		// Remove the size
 		unset( $sizes[apply_filters( 'sanitize_title', $_POST['name'] )] );
@@ -572,7 +564,7 @@ Class SISAdmin {
 	
 			$sizes = apply_filters( 'intermediate_image_sizes_advanced', $sizes );
 	
-			foreach ($sizes as $size => $size_data ) {
+			foreach ( $sizes as $size => $size_data ) {
 				if( isset( $thumbnails ) )
 					if( !in_array( $size, $thumbnails ) )
 						continue;
@@ -605,32 +597,32 @@ Class SISAdmin {
 	 */
 	public function sizesInForm( $form_fields, $post ) {
 		// Protect from being view in Media editor where there are no sizes
-        if ( isset($form_fields['image-size']) ) {
+        if ( isset( $form_fields['image-size'] ) ) {
             $out = NULL;
             $size_names = array();
             $sizes_custom = get_option( 'custom_image_sizes' );
-            if (is_array($sizes_custom)) {
-                foreach($sizes_custom as $key => $value) {
+            if ( is_array( $sizes_custom ) ) {
+                foreach( $sizes_custom as $key => $value ) {
                     $size_names[$key] = $key;
                 }
             }
             foreach ( $size_names as $size => $label ) {
-                $downsize = image_downsize($post->ID, $size);
+                $downsize = image_downsize( $post->ID, $size );
 
                 // is this size selectable?
                 $enabled = ( $downsize[3] || 'full' == $size );
                 $css_id = "image-size-{$size}-{$post->ID}";
 
                 // We must do a clumsy search of the existing html to determine is something has been checked yet
-                if ( FALSE === strpos('checked="checked"', $form_fields['image-size']['html']) ) {
+                if ( FALSE === strpos( 'checked="checked"', $form_fields['image-size']['html'] ) ) {
 
                     if ( empty($check) )
-                        $check = get_user_setting('imgsize'); // See if they checked a custom size last time
+                        $check = get_user_setting( 'imgsize' ); // See if they checked a custom size last time
 
                     $checked = '';
 
                     // if this size is the default but that's not available, don't select it
-                    if ( $size == $check || str_replace(" ", "", $size) == $check ) {
+                    if ( $size == $check || str_replace( " ", "", $size ) == $check ) {
                         if ( $enabled )
                             $checked = " checked='checked'";
                         else

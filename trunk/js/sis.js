@@ -124,42 +124,38 @@ var sizes = {
 			return false;
 		}
 		
-	    output = '<th scope="row">';
-	    output += sis.size + ' ' + name;
+	    output = '<th scope="row">'; 
+			output += sis.size + ' ' + name;
 	    output += '</th>';
 	    output += '<td>';
-	    output += '<input type="hidden" value="'+name+'" name="image_name" />';
-	    output += '<input name="custom_image_sizes[' + name + '][custom]" type="hidden" id="custom_image_sizes[' + name + '][custom]" value="1" />';
-	    output += '<label for="custom_image_sizes[' + name + '][w]">';
-	    output += sis.maximumWidth + ' <input name="custom_image_sizes[' + name + '][w] " class="w" type="text" id="custom_image_sizes[' + name + '][w]" value="" class="small-text" />'
-	    output += '</label>';
-	
-	    output += '<label for="custom_image_sizes[' + name + '][h]">';
-	    output += sis.maximumHeight + ' <input name="custom_image_sizes[' + name + '][h]" class="h" type="text" id="custom_image_sizes[' + name + '][h]" value="" class="small-text" />';
-	    output += '</label>';
-	
-	    output += '<label class="crop"> '
-	    output += sis.crop + ' <input type="checkbox" name="custom_image_sizes[' + name + '][c]" class="c" value="1" /> </label>';
-		    
-	   	output += '<label class="ui-state-default ui-corner-all validate_size">';
-	    output += '<span class="validateText">Validate</span>';
-	    output += '<div class="ui-icon ui-icon-circle-check delete_size_icon" >';
-	    output += '</div>';
-	    output += '</label>';
-	    
-	    output += '<label class="ui-state-default ui-corner-all delete_size" >';
-	    output += '<span class="deleteText">'+sis.deleteImage+'</span>';
-	    output += '<div class="ui-icon ui-icon-circle-close validate_size_icon" >';
-	    output += '</div>';	   
-	    output += '</label>';
+			output += '<input type="hidden" value="'+name+'" name="image_name" />';
+			output += '<input name="custom_image_sizes[' + name + '][custom]" type="hidden" id="custom_image_sizes[' + name + '][custom]" value="1" />';
+			output += '<label for="custom_image_sizes[' + name + '][w]">';
+			output += sis.maximumWidth + ' <input name="custom_image_sizes[' + name + '][w] " class="w" type="number" type="number" step="1" min="0" id="custom_image_sizes[' + name + '][w]" value="" class="small-text" />'
+			output += '</label>';
+		
+			output += '<label for="custom_image_sizes[' + name + '][h]">';
+			output += sis.maximumHeight + ' <input name="custom_image_sizes[' + name + '][h]" class="h" type="number" value="0" type="number" step="1" min="0" id="custom_image_sizes[' + name + '][h]" value="" class="small-text" />';
+			output += '</label>';
+			
+			output += '<div class="crop"><input type="checkbox" id="custom_image_sizes[' + name + '][c]" value="0" name="custom_image_sizes[' + name + '][c]" value="1" /><label for="custom_image_sizes[' + name + '][c]">'+sis.crop+'</label></div>';
+
+			output += '<div class="delete_size">'+sis.deleteImage+'</div>';
+			output += '<div class="add_size validate_size">'+'Validate'+'</div>';
 	    
 	    output += '</td>';
 		
 	    jQuery('#' + id).closest( 'tr' ).html(output);
+		this.setButtons();
 	},
 	delete: function( el ) {
-	    jQuery( el ).closest( 'tr' ).remove();
-	    this.removeFromArray( el );
+		var confirmation = confirm('Do you really want to delete these size ?');
+		if( confirmation == true ) {
+			jQuery( el ).closest( 'tr' ).remove();
+			this.removeFromArray( el );
+		}else{
+			return false;
+		}
 	},
 	getPhp : function(e) {
 		e.preventDefault();
@@ -182,7 +178,7 @@ var sizes = {
 		var c = parent.find( 'input.c' ).attr( 'checked' );
 		var w = parseInt( parent.find( 'input.w' ).val() );
 		var h = parseInt( parent.find( 'input.h' ).val() );
-		
+
 		jQuery.ajax({
 	        url: sis.ajaxUrl,
 	        type: "POST",
@@ -192,20 +188,20 @@ var sizes = {
 	        	parent.addClass( 'addPending' );
 	        },
 	        success: function(result) {
-	        	var class = '';
+	        	var classTr = '';
 	        	parent.removeClass( 'addPending' );
 	        	
 	        	if( result == 0 ) {
-	        		class = 'errorAdding';
+	        		classTr = 'errorAdding';
 	        	} else if( result == 2 ) {
-	        		class = 'notChangedAdding';
+	        		classTr = 'notChangedAdding';
 	        	} else {
-	        		class = 'successAdding';
+	        		classTr = 'successAdding';
 	        		self.addToArray( n,w,h,c );
 	        	}
 
-	        	parent.addClass( class );
-	        	parent.find( '.validateText' ).text('Update') ;
+	        	parent.addClass( classTr );
+	        	parent.find( '.add_size .ui-button-text' ).text('Update') ;
 	        }
 	    });	
 	},
@@ -249,9 +245,23 @@ var sizes = {
 		if( testRow.length == 0 )
 			newRow.appendTo( '#sis-regen .wrapper > table > tbody' );	
 	},
-	removeFromArray : function( el ) {
+	removeFromArray: function( el ) {
 		var n = jQuery( el ).closest( 'tr' ).find( 'input[name=image_name]' ).val();
 		jQuery( '#sis-regen .wrapper > table > tbody input[value="'+n+'"]' ).closest( 'tr' ).remove();
+	},
+	setButtons: function() {
+	    // UI
+		jQuery(".delete_size").button({
+			icons: {
+				primary: 'ui-icon-circle-close'
+			}
+		});
+		jQuery(".add_size").button({
+			icons: {
+				primary: 'ui-icon-circle-check'
+			}
+		});
+		jQuery(".crop").button();
 	}
 }
 jQuery(function() {
@@ -275,21 +285,9 @@ jQuery(function() {
         'color': 'orange'
     });
     
-    // UI
-	jQuery(".delete_size").button({
-		icons: {
-			primary: 'ui-icon-circle-close'
-		}
-	});
-	jQuery(".add_size").button({
-		icons: {
-			primary: 'ui-icon-circle-check'
-		}
-	});
-    jQuery(".crop").button();
 	jQuery('.progress').hide();
 	
-	
+	sizes.setButtons();
 	
 	jQuery('#get_php').nextAll('code').hide();
 	

@@ -34,13 +34,13 @@ Class SISAdmin {
 			// Add javascript
 			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.js', array('jquery'), SIS_VERSION );
 			//wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.progressbar.min.js', array(), '1.8.10' );
-			wp_enqueue_script( 'jquery-ui-progressbar', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js', array(), '1.8.10' );
+			wp_enqueue_script( 'jquery-ui-progressbar', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js', array('jquery'), rand( 1, 100 ) );
 			// Add javascript translation
 			wp_localize_script( 'sis_js', 'sis', $this->localizeVars() );
 			
 			// Add CSS
 			//wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/jquery-ui-1.8.10.progressbar.css', array(), '1.8.10' );
-			wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/Aristo/jquery-ui-1.8.7.custom.css', array(), '1.8.10' );
+			wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/Aristo/jquery-ui-1.8.7.custom.css', array(), rand( 1, 100 ) );
 			wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), SIS_VERSION );
 		}
 	}
@@ -55,6 +55,7 @@ Class SISAdmin {
 	public function localizeVars() {
 	    return array(
 	        'ajaxUrl' =>  admin_url( '/admin-ajax.php' ),
+			'spinnerUrl' => admin_url( '/images/wpspin_light.gif' ),
 	        'reading' => __( 'Reading attachments...', 'sis' ),
 	        'maximumWidth' => __( 'Maximum width', 'sis' ),
 	        'maximumHeight' => __( 'Maximum height', 'sis' ),
@@ -285,6 +286,7 @@ Class SISAdmin {
 	public function thumbnailRegenerate() {
 		// Get the sizes
 		global $_wp_additional_image_sizes;
+		$class= "alternate";
 ?>
 		<div id="sis-regen">
 			<div class="wrapper" style="">
@@ -299,10 +301,11 @@ Class SISAdmin {
 	                        <th class="manage-column column-author" scope="col"><?php _e( 'Crop ?', 'sis'); ?></th>
 	                    </tr>
 	                </thead>
-	                <tboby>
+	                <tbody>
 	            		<?php
 	            		// Display the sizes in the array
 	            		foreach ( get_intermediate_image_sizes() as $s ):
+							$class = empty($class)? 'alternate' : '' ;
 	
 							if ( isset( $_wp_additional_image_sizes[$s]['width'] ) ) // For theme-added sizes
 								$width = intval( $_wp_additional_image_sizes[$s]['width'] );
@@ -319,7 +322,7 @@ Class SISAdmin {
 							else                                                      // For default sizes set in options
 								$crop = get_option( "{$s}_crop" );
 							?>
-							<tr>
+							<tr class="<?php echo $class; ?>">
 								<td>
 	                				<input type="checkbox" class="thumbnails" id="<?php echo $s ?>" name="thumbnails[]" checked="checked" value="<?php echo $s ?>" />
 	                			</td>
@@ -372,8 +375,9 @@ Class SISAdmin {
 						<?php
 						// Diplay the post types table
 						foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $ptype ):
+							$class = empty($class)? 'alternate' : '' ;
 							?>
-							<tr>
+							<tr class="<?php echo $class; ?>">
 								<td>
 									<label for="<?php echo $ptype->name; ?>">
 										<input type="checkbox" class="post_types" name="post_types[]" checked="checked" id="<?php echo $ptype->name; ?>" value="<?php echo $ptype->name; ?>" />

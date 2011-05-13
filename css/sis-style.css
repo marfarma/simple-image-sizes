@@ -24,20 +24,26 @@
 	.progress.ui-widget-content { border: 1px solid #343434; background: #fcfdfd url(./images/progress-background.png) 50% bottom repeat-x; }
 	.progress .ui-widget-header { border: 1px solid #343434; background: #5c9ccc url(./images/progress-stripe.png) 50% 50% repeat-x; }
 */
-.form-table tr{
-	-webkit-transition: all 0.5s ease-in-out;
+tr{	
+	-webkit-transition: all .5s ease-in-out;
+    -moz-transition: all .5s ease-in-out;
+    -o-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
 }
-.addPending{
-	background-color:blue;
+tr:nth-child(even){
+	background-color:#F9F9F9 ;
 }
-.successAdding{
-	background-color:green;
+tr.addPending{
+	background-color:#6CA1D7;
 }
-.errorAdding {
-	background-color:red;
+tr.successAdding{
+	background-color:#89D76A;
 }
-.notChangedAdding {
-	background-color:orange;
+tr.errorAdding {
+	background-color:#C45858;
+}
+tr.notChangedAdding {
+	background-color:#F2A13A;	
 }
 .wrapper {
 	display: inline-block;

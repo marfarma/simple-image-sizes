@@ -13,6 +13,7 @@ Class SISAdmin {
 		add_action('wp_ajax_ajax_thumbnail_rebuild', array( &$this, 'ajaxThumbnailRebuildAjax' ) );
 		add_action('wp_ajax_get_sizes', array( &$this, 'ajaxGetSizes' ) );
 		add_action('wp_ajax_add_size', array( &$this, 'ajaxAddSize' ) );
+		add_action('wp_ajax_sanitize_name', array( &$this, 'ajaxSanitize' ) );
 		add_action('wp_ajax_remove_size', array( &$this, 'ajaxRemoveSize' ) );
 		
 		// Add image sizes in the form
@@ -180,23 +181,28 @@ Class SISAdmin {
 		<?php endif; ?>
 		<label for="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>">
 			<?php _e( 'Maximum width', 'sis'); ?> 
-			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>" class='w' type="number" step='1' min='0' id="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>" value="<?php echo $width  ?>" class="small-text" />
+			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>" class='w' type="number" step='1' min='0' id="<?php echo 'custom_image_sizes['.$args['name'].'][w]' ?>" value="<?php echo $width  ?>" />
 		</label>
 			
 		<label for="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>">
 			<?php _e( 'Maximum height', 'sis'); ?> 
-			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>" class='h' type="number" step='1' min='0' id="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>" value="<?php echo $height ?>" class="small-text" />
+			<input name="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>" class='h' type="number" step='1' min='0' id="<?php echo 'custom_image_sizes['.$args['name'].'][h]' ?>" value="<?php echo $height ?>" />
 		</label>
 	 
 		<div class="crop">
-			<input type='checkbox' id="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" <?php checked( $crop, 1 ) ?> name="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" value="1" />
+			<input type='checkbox' id="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" <?php checked( $crop, 1 ) ?> class="c" name="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>" value="1" />
 			<label for="<?php echo 'custom_image_sizes['.$args['name'].'][c]' ?>"><?php _e( 'Crop ?', 'sis'); ?></label>
 		</div>
 		<div class="delete_size"><?php _e( 'Delete', 'sis'); ?></div>
 		<div class="add_size validate_size"><?php _e( 'Update', 'sis'); ?></div>
 	<?php }
 	
-	
+	public function ajaxSanitize() {
+		$name = isset( $_POST['name'] ) ? apply_filters( 'sanitize_title', $_POST['name'] ) : '' ;
+		
+		echo $name;
+		die();
+	}
 	
 	public function ajaxAddSize() {
 		
@@ -208,11 +214,11 @@ Class SISAdmin {
 		$height = !isset( $_POST['height'] )? 0 : (int)$_POST['height'];
 		$width =  !isset( $_POST['width'] )? 0 : (int)$_POST['width'];
 		$crop = !isset( $_POST['crop'] ) || ( $_POST['crop'] != 'true' && $_POST['crop'] != 'false' )? true : $_POST['crop'];
-		
+
 		$values = array( 'custom' => 1, 'w' => $width , 'h' => $height, 'c' => $crop );
 		
 		// If the size have not changed return 2
-		if( isset( $sizes[$name] ) && $sizes[$name] == $values ) {
+		if( isset( $sizes[$name] ) && $sizes[$name] === $values ) {
 			echo 2;
 			die();
 		}

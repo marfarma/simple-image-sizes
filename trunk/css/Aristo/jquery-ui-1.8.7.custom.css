@@ -710,6 +710,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 .ui-progressbar .ui-progressbar-value {margin: -1px; height:100%; background: url(images/progress_bar.gif) 0 0 repeat-x; }
 
 /* Extra Input Field Styling */
+/*
 textarea, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
 	padding: 3px;
 	-webkit-border-radius: 2px;
@@ -736,3 +737,4 @@ textarea:focus, input:not([type="checkbox"]):not([type="radio"]):not([type="file
 	-moz-box-shadow: 0 2px 3px rgba(161,202,226,0.5) inset, 0 1px 0 rgba(255,255,255,0.2);
 	box-shadow: 0 2px 3px rgba(161,202,226,0.5) inset, 0 1px 0 rgba(255,255,255,0.2);
 }
+*/

@@ -10,20 +10,14 @@
 	.progress .progress-percent {
 		position: absolute;
 		left: 0%;
-		top: -50px;
+		top: -63px;
 		width: 82px;
 		height: 49px;
 		margin-top: -9px;
 		font-weight: bold;
-		background-image: url('./images/progress-bubble.png');
 		line-height: 39px;
 		text-align: center;
 	}
-/*
-
-	.progress.ui-widget-content { border: 1px solid #343434; background: #fcfdfd url(./images/progress-background.png) 50% bottom repeat-x; }
-	.progress .ui-widget-header { border: 1px solid #343434; background: #5c9ccc url(./images/progress-stripe.png) 50% 50% repeat-x; }
-*/
 tr{	
 	-webkit-transition: all .5s ease-in-out;
     -moz-transition: all .5s ease-in-out;

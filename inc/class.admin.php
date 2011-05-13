@@ -13,7 +13,6 @@ Class SISAdmin {
 		add_action('wp_ajax_ajax_thumbnail_rebuild', array( &$this, 'ajaxThumbnailRebuildAjax' ) );
 		add_action('wp_ajax_get_sizes', array( &$this, 'ajaxGetSizes' ) );
 		add_action('wp_ajax_add_size', array( &$this, 'ajaxAddSize' ) );
-		add_action('wp_ajax_sanitize_name', array( &$this, 'ajaxSanitize' ) );
 		add_action('wp_ajax_remove_size', array( &$this, 'ajaxRemoveSize' ) );
 		
 		// Add image sizes in the form
@@ -33,15 +32,14 @@ Class SISAdmin {
 	public function registerScripts($hook_suffix = '' ) {
 		if( isset( $hook_suffix ) && $hook_suffix == 'options-media.php' ) {
 			// Add javascript
-			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.js', array('jquery'), SIS_VERSION );
-			//wp_enqueue_script( 'jquery-ui-progressbar', SIS_URL.'js/jquery-ui-1.8.10.progressbar.min.js', array(), '1.8.10' );
-			wp_enqueue_script( 'jquery-ui-progressbar', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js', array('jquery'), rand( 1, 100 ) );
+			wp_enqueue_script( 'sis-jquery-ui-sis',  SIS_URL.'js/jquery-ui-1.8.12.custom.min.js', array('jquery'), '1.8.12' );
+			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.min.js', array('jquery','sis-jquery-ui-sis'), SIS_VERSION );
+			
 			// Add javascript translation
 			wp_localize_script( 'sis_js', 'sis', $this->localizeVars() );
 			
 			// Add CSS
-			//wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/jquery-ui-1.8.10.progressbar.css', array(), '1.8.10' );
-			wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/Aristo/jquery-ui-1.8.7.custom.css', array(), rand( 1, 100 ) );
+			wp_enqueue_style( 'jquery-ui-sis', SIS_URL.'css/Aristo/jquery-ui-1.8.7.custom.css', array(), '1.8.7' );
 			wp_enqueue_style( 'sis_css', SIS_URL.'css/sis-style.css', array(), SIS_VERSION );
 		}
 	}
@@ -56,7 +54,6 @@ Class SISAdmin {
 	public function localizeVars() {
 	    return array(
 	        'ajaxUrl' =>  admin_url( '/admin-ajax.php' ),
-			'spinnerUrl' => admin_url( '/images/wpspin_light.gif' ),
 	        'reading' => __( 'Reading attachments...', 'sis' ),
 	        'maximumWidth' => __( 'Maximum width', 'sis' ),
 	        'maximumHeight' => __( 'Maximum height', 'sis' ),
@@ -68,7 +65,13 @@ Class SISAdmin {
 	        'validate' => __( 'Validate image size name', 'sis' ),	        
 	        'done' => __( 'Done.', 'sis' ),
 	        'size' => __( 'Size', 'sis' ),	
-	        'notOriginal' => __( 'Don\'t use the basic Wordpress thumbnail size name, use the form above to edit them', 'sis' ),        
+	        'notOriginal' => __( 'Don\'t use the basic Wordpress thumbnail size name, use the form above to edit them', 'sis' ),
+	        'alreadyPresent' => __( 'This size is already registered, edit it instead of recreating it.', 'sis' ),
+	        'confirmDelete' => __( 'Do you really want to delete these size ?', 'sis' ),
+	        'update' => __( 'Update', 'sis' ),
+	        'ajaxErrorHandler' => __( 'Error requesting page', 'sis' ),
+	       	'messageRegenerated' => __( 'images have been regenerated !', 'sis' ),
+	       	'validateButton' => __( 'Validate', 'sis' ),
 	    );
 	}
 	
@@ -197,53 +200,6 @@ Class SISAdmin {
 		<div class="add_size validate_size"><?php _e( 'Update', 'sis'); ?></div>
 	<?php }
 	
-	public function ajaxSanitize() {
-		$name = isset( $_POST['name'] ) ? apply_filters( 'sanitize_title', $_POST['name'] ) : '' ;
-		
-		echo $name;
-		die();
-	}
-	
-	public function ajaxAddSize() {
-		
-		// Get old options
-		$sizes = (array)get_option( SIS_OPTION );
-		
-		// Check entries
-		$name = isset( $_POST['name'] ) ? apply_filters( 'sanitize_title', $_POST['name'] ) : '' ;
-		$height = !isset( $_POST['height'] )? 0 : (int)$_POST['height'];
-		$width =  !isset( $_POST['width'] )? 0 : (int)$_POST['width'];
-		$crop = !isset( $_POST['crop'] ) || ( $_POST['crop'] != 'true' && $_POST['crop'] != 'false' )? true : $_POST['crop'];
-
-		$values = array( 'custom' => 1, 'w' => $width , 'h' => $height, 'c' => $crop );
-		
-		// If the size have not changed return 2
-		if( isset( $sizes[$name] ) && $sizes[$name] === $values ) {
-			echo 2;
-			die();
-		}
-		
-		// Put the new values
-		$sizes[$name] = $values;
-		
-		// display update result
-		echo (int)update_option( 'custom_image_sizes', $sizes );
-		die();
-	}
-	
-	public function ajaxRemoveSize() {
-		// Get old options
-		$sizes = (array)get_option( SIS_OPTION );
-		
-		// Remove the size
-		unset( $sizes[apply_filters( 'sanitize_title', $_POST['name'] )] );
-		unset( $sizes[0] );
-		
-		// Display the results
-		echo (int)update_option( 'custom_image_sizes', $sizes );
-		die();		
-	}
-	
 	/**
 	 * Add the button to add a size
 	 * 
@@ -278,7 +234,7 @@ Class SISAdmin {
  	 * @author Nicolas Juen
 	 */
 	public function addLegend() { ?>
-		<?php _e('The images created on your theme are <span style="color:orange">orange</span> and your custom size are <span style="color:green"> green </span>.', 'sis'); ?>
+		<?php _e('The images created on your theme are <span style="color:#F2A13A">orange</span> and your custom size are <span style="color:#89D76A"> green </span>.', 'sis'); ?>
 	<?php
 	}
 	
@@ -353,7 +309,7 @@ Class SISAdmin {
 								
 								<td>
 									<label for="<?php echo $s ?>">
-										<?php echo ( $crop == 1 )? 'yes':'no'; ?>
+										<?php echo ( $crop == 1 )? __( 'yes', 'no' ):__( 'no', 'sis' ); ?>
 									</label>
 								</td>
 							</tr>
@@ -410,12 +366,73 @@ Class SISAdmin {
 		<div style="clear:both;padding-top:15px">
 			<div id="regenerate_message"></div>
 			<div class="progress">
-				<div class="progress-percent" ></div>
+				<div class=" progress-percent ui-widget">
+					<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+						<p>
+							<span class="ui-icon ui-icon-info" style="float: left; margin-right: .7em;"></span>
+							<span class="text">0%</span>
+						</p>
+					</div>
+				</div>
 			</div>
 			<div id="thumb"><h4><?php _e( 'Last image:', 'sis'); ?></h4><img id="thumb-img" /></div>
 			<input type="button" class="button" name="ajax_thumbnail_rebuild" id="ajax_thumbnail_rebuild" value="<?php _e( 'Regenerate Thumbnails', 'sis' ) ?>" />
 		</div>
 		<?php
+	}
+		
+	/**
+	 * Add a size by Ajax
+	 * 
+	 * @access public
+	 * @return void
+	 * @author Nicolas Juen
+	 */
+	public function ajaxAddSize() {
+		
+		// Get old options
+		$sizes = (array)get_option( SIS_OPTION );
+		
+		// Check entries
+		$name = isset( $_POST['name'] ) ? apply_filters( 'sanitize_title', $_POST['name'] ) : '' ;
+		$height = !isset( $_POST['height'] )? 0 : (int)$_POST['height'];
+		$width =  !isset( $_POST['width'] )? 0 : (int)$_POST['width'];
+		$crop = !isset( $_POST['crop'] ) || ( $_POST['crop'] != 'true' && $_POST['crop'] != 'false' )? true : $_POST['crop'];
+
+		$values = array( 'custom' => 1, 'w' => $width , 'h' => $height, 'c' => $crop );
+		
+		// If the size have not changed return 2
+		if( isset( $sizes[$name] ) && $sizes[$name] === $values ) {
+			echo 2;
+			die();
+		}
+		
+		// Put the new values
+		$sizes[$name] = $values;
+		
+		// display update result
+		echo (int)update_option( 'custom_image_sizes', $sizes );
+		die();
+	}
+	
+	/**
+	 * Remove a size by Ajax
+	 * 
+	 * @access public
+	 * @return void
+	 * @author Nicolas Juen
+	 */
+	public function ajaxRemoveSize() {
+		// Get old options
+		$sizes = (array)get_option( SIS_OPTION );
+		
+		// Remove the size
+		unset( $sizes[apply_filters( 'sanitize_title', $_POST['name'] )] );
+		unset( $sizes[0] );
+		
+		// Display the results
+		echo (int)update_option( 'custom_image_sizes', $sizes );
+		die();		
 	}
 	
 	/**

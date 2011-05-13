@@ -4,7 +4,7 @@ Donate link: http://www.beapi.fr/donate/
 Tags: images, image, custom sizes, custom images, thumbnail regenerate, thumbnail, regenerate
 Requires at least: 3.0
 Tested up to: 3.2
-Stable tag: 2.0
+Stable tag: 2.0.1
 
 == Description ==
 
@@ -14,7 +14,8 @@ You can now get all the code to copy and paste to your function theme file.
 Now you can use the generated sizes directly into your posts and insert images at the right size !
 
 == Installation ==
-
+ **Required PHP5.**
+ 
 1. Download, unzip and upload to your WordPress plugins directory
 2. Activate the plugin within you WordPress Administration Backend
 3. Go to Settings > Medias
@@ -27,6 +28,9 @@ Now you can use the generated sizes directly into your posts and insert images a
 3. In posts thumbnails
 
 == Changelog ==
+* 2.0.1
+	* Resolve javascript issue when clicking on delete button
+	* Resolve issue of never unchecking crop button
 * 2.0
 	* Code refactoring
 	* Update translations

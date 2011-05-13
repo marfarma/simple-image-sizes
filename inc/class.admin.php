@@ -309,7 +309,7 @@ Class SISAdmin {
 								
 								<td>
 									<label for="<?php echo $s ?>">
-										<?php echo ( $crop == 1 )? __( 'yes', 'no' ):__( 'no', 'sis' ); ?>
+										<?php echo ( $crop == 1 )? __( 'yes', 'sis' ):__( 'no', 'sis' ); ?>
 									</label>
 								</td>
 							</tr>
@@ -397,10 +397,11 @@ Class SISAdmin {
 		$name = isset( $_POST['name'] ) ? apply_filters( 'sanitize_title', $_POST['name'] ) : '' ;
 		$height = !isset( $_POST['height'] )? 0 : (int)$_POST['height'];
 		$width =  !isset( $_POST['width'] )? 0 : (int)$_POST['width'];
-		$crop = !isset( $_POST['crop'] ) || ( $_POST['crop'] != 'true' && $_POST['crop'] != 'false' )? true : $_POST['crop'];
+
+		$crop = isset( $_POST['crop'] ) &&  $_POST['crop'] == 'false' ? false : true;
 
 		$values = array( 'custom' => 1, 'w' => $width , 'h' => $height, 'c' => $crop );
-		
+		var_dump( $values );
 		// If the size have not changed return 2
 		if( isset( $sizes[$name] ) && $sizes[$name] === $values ) {
 			echo 2;

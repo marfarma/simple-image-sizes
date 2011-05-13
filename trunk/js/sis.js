@@ -101,16 +101,29 @@ var sizes = {
 	i: 0,
 	add: function(e,el) {
 		e.preventDefault();
-		var row = '';
-	    row = '<tr valign="top" class="new_size_' + this.i + '">';
-	    row += '<th scope="row">';
-	    row += '<input type="text" value="thumbnail-name" id="new_size_' + this.i + '" />';
-	    row += '</th>';
-	    row += '<td>';
-	    row += '<input type="button" class="button-secondary action add_size_name" id="validate_' + this.i + '" value="' + sis.validate + '" />';
-	    row += '</td>';
-	    row += '</tr>';
-	    jQuery(el).closest( 'tr' ).before(row);
+		
+		var elTr = jQuery( '<tr />' ).attr( 'valign', 'top' ).addClass( 'new_size_' + this.i );
+		jQuery( '<th />' ).attr( 'scope', 'row' ).append( 
+								jQuery( '<input />' )
+									.attr( { 	
+										type: 'text',
+										id: 'new_size_'+this.i,
+									}
+								 )
+								 .val( 'thumbnail-name' )
+							).appendTo( elTr );
+		
+		jQuery( '<td />' ).append( jQuery( '<input />' )
+									.attr( { 	
+										type: 'button',
+										id: 'validate_'+this.i,
+									}
+								 )
+								 .val( sis.validate )
+								 .addClass('button-secondary action add_size_name')
+							).appendTo( elTr );
+		
+	    jQuery(el).closest( 'tr' ).before(elTr);
 	    
 	    this.i++;
 	},
@@ -118,38 +131,73 @@ var sizes = {
 		e.preventDefault();
 	    var name = jQuery(el).closest('tr').children('th').find('input').val();
 	    var id = jQuery(el).closest('tr').children('th').find('input').attr('id');
+
+	    var checkPresent = jQuery( el ).closest('tbody').find( 'input[value="'+name+'"]' ).length;
 		
 		if( name == 'thumbnail' || name == "medium" || name == "large" ) {
 			alert( sis.notOriginal );
 			return false;
+		} else if( checkPresent !=0 ) {
+			alert( 'This size is already registered, edit it instead of recreating it.' );
+			return false;		
 		}
 		
-	    output = '<th scope="row">'; 
-			output += sis.size + ' ' + name;
-	    output += '</th>';
-	    output += '<td>';
-			output += '<input type="hidden" value="'+name+'" name="image_name" />';
-			output += '<input name="custom_image_sizes[' + name + '][custom]" type="hidden" id="custom_image_sizes[' + name + '][custom]" value="1" />';
-			output += '<label for="custom_image_sizes[' + name + '][w]">';
-			output += sis.maximumWidth + ' <input name="custom_image_sizes[' + name + '][w] " class="w" type="number" type="number" step="1" min="0" id="custom_image_sizes[' + name + '][w]" value="" class="small-text" />'
-			output += '</label>';
+		var thEl = jQuery( '<th />' ).attr( 'scope', 'row' ).text( sis.size + ' ' + name );
+		var tdEl = jQuery( '<td />' );
 		
-			output += '<label for="custom_image_sizes[' + name + '][h]">';
-			output += sis.maximumHeight + ' <input name="custom_image_sizes[' + name + '][h]" class="h" type="number" value="0" type="number" step="1" min="0" id="custom_image_sizes[' + name + '][h]" value="" class="small-text" />';
-			output += '</label>';
-			
-			output += '<div class="crop"><input type="checkbox" id="custom_image_sizes[' + name + '][c]" value="0" name="custom_image_sizes[' + name + '][c]" value="1" /><label for="custom_image_sizes[' + name + '][c]">'+sis.crop+'</label></div>';
+		jQuery( '<input />' ).attr( { type: 'hidden', name: 'image_name' } ).val( name ).appendTo( tdEl ) ;
+		jQuery( '<input />' ).attr( { type :'hidden', name : 'custom_image_sizes[' + name + '][custom]' } ).val( "1" ).appendTo( tdEl );
+		
+		jQuery( '<label />' ).attr( 'for', 'custom_image_sizes[' + name + '][w]' ).text(sis.maximumWidth).append( 
+			jQuery( '<input />' ).attr( { 	type: 'number', 
+											name: 'custom_image_sizes[' + name + '][w]',
+											step: 1,
+											min: 0,
+											id: 'custom_image_sizes[' + name + '][w]'
+										}
+										).val( "0" ).addClass( "w" )
+		).appendTo( tdEl );
+		
+		jQuery( '<label />' ).attr( 'for', 'custom_image_sizes[' + name + '][h]' ).text(sis.maximumHeight).append( 
+			jQuery( '<input />' ).attr( { 	type: 'number', 
+											name: 'custom_image_sizes[' + name + '][h]',
+											step: 1,
+											min: 0,
+											id: 'custom_image_sizes[' + name + '][h]'
+										}
+										).val( "0" ).addClass( "h" )
+		).appendTo( tdEl );
+		
+		jQuery( '<div />' )
+			.addClass( 'crop' )
+				.append( 
+					jQuery( '<input />' )
+						.attr( { 	
+									type: 'checkbox', 
+									name: 'custom_image_sizes[' + name + '][c]',
+									id: 'custom_image_sizes[' + name + '][c]'
+								} )
+						.val( "1" )
+						.addClass( 'c' )
+				)
+				.append(
+					jQuery( '<label />' )
+						.attr( { 	
+									'for': 'checkbox', 
+									id: 'custom_image_sizes[' + name + '][c]'
+								} )
+						.text( sis.crop ) 
+				).appendTo( tdEl );
+				
+		jQuery( '<div />' ).text( sis.deleteImage ).addClass('delete_size').appendTo( tdEl );
+		jQuery( '<div />' ).text( 'Validate' ).addClass('add_size validate_size').appendTo( tdEl );
 
-			output += '<div class="delete_size">'+sis.deleteImage+'</div>';
-			output += '<div class="add_size validate_size">'+'Validate'+'</div>';
-	    
-	    output += '</td>';
-		
-	    jQuery('#' + id).closest( 'tr' ).html(output);
+	    jQuery('#' + id).closest( 'tr' ).html( thEl.after( tdEl ) );
 		this.setButtons();
 	},
 	delete: function( el ) {
-		var confirmation = confirm('Do you really want to delete these size ?');
+		var confirmation = confirm( 'Do you really want to delete these size ?' );
+		
 		if( confirmation == true ) {
 			jQuery( el ).closest( 'tr' ).remove();
 			this.removeFromArray( el );
@@ -157,16 +205,20 @@ var sizes = {
 			return false;
 		}
 	},
-	getPhp : function(e) {
+	getPhp : function( e, el ) {
 		e.preventDefault();
+		var parent = jQuery( el ).closest('tr');
 	    jQuery.ajax({
-	        url: 'fff',
+	        url: sis.ajaxUrl,
 	        type: "POST",
 	        data: { action : "get_sizes" },
 	        beforeSend: function() {
+	        	parent.removeClass( 'addPending' );
+	        	parent.addClass( 'addPending' );
 	        },
 	        success: function(result) {
 	            jQuery('#get_php').nextAll('code').html('<br />' + result).show().css( { 'display' : 'block' } );
+	            parent.removeClass( 'addPending' );
 	        }
 	    });
 	},
@@ -178,7 +230,7 @@ var sizes = {
 		var c = parent.find( 'input.c' ).attr( 'checked' );
 		var w = parseInt( parent.find( 'input.w' ).val() );
 		var h = parseInt( parent.find( 'input.h' ).val() );
-
+		
 		jQuery.ajax({
 	        url: sis.ajaxUrl,
 	        type: "POST",
@@ -188,6 +240,7 @@ var sizes = {
 	        	parent.addClass( 'addPending' );
 	        },
 	        success: function(result) {
+	        	
 	        	var classTr = '';
 	        	parent.removeClass( 'addPending' );
 	        	
@@ -195,15 +248,20 @@ var sizes = {
 	        		classTr = 'errorAdding';
 	        	} else if( result == 2 ) {
 	        		classTr = 'notChangedAdding';
+	        		self.addToArray( n,w,h,c,classTr );
 	        	} else {
 	        		classTr = 'successAdding';
-	        		self.addToArray( n,w,h,c );
+	        		self.addToArray( n,w,h,c,classTr );
 	        	}
 
 	        	parent.addClass( classTr );
 	        	parent.find( '.add_size .ui-button-text' ).text('Update') ;
-	        }
-	    });	
+	        	
+	        	setTimeout(function() {
+					parent.removeClass( 'errorAdding notChangedAdding successAdding' );
+				}, 3 * 1000  );
+			}
+		});	
 	},
 	ajaxUnregister: function(e, el) {
 		e.preventDefault();
@@ -215,14 +273,13 @@ var sizes = {
 	        type: "POST",
 	        data: { action : "remove_size", name: n },
 	        beforeSend: function() {
-	        	console.log( 'removing' );
 	        },
 	        success: function(result) {
 				self.delete( el );	
 	        }
 	    });	
 	},
-	addToArray: function( n,w,h,c ) {
+	addToArray: function( n,w,h,c,s ) {
 		var testRow = jQuery( '#sis-regen .wrapper > table > tbody input[value="'+n+'"]' );
 		var newRow = '';
 		
@@ -243,11 +300,17 @@ var sizes = {
 		.find( 'td:nth-child(5) > label' ).text( c );
 		
 		if( testRow.length == 0 )
-			newRow.appendTo( '#sis-regen .wrapper > table > tbody' );	
+			newRow.appendTo( '#sis-regen .wrapper > table > tbody' );
+		
+		newRow.removeClass( 'errorAdding notChangedAdding successAdding' ).addClass( s );
+		
+		setTimeout(function() {
+			newRow.removeClass( 'errorAdding notChangedAdding successAdding' );
+		}, 3 * 1000 );
 	},
 	removeFromArray: function( el ) {
 		var n = jQuery( el ).closest( 'tr' ).find( 'input[name=image_name]' ).val();
-		jQuery( '#sis-regen .wrapper > table > tbody input[value="'+n+'"]' ).closest( 'tr' ).remove();
+		jQuery( '#sis-regen .wrapper > table > tbody input[value="'+n+'"]' ).closest( 'tr' ).addClass( 'noTr' ).remove();
 	},
 	setButtons: function() {
 	    // UI
@@ -276,13 +339,13 @@ jQuery(function() {
     jQuery('.validate_size').live('click', function( e ){ sizes.ajaxRegister( e, this ); });
     
     
-    jQuery('#get_php').click( function( e ){ sizes.getPhp( e ) } );
+    jQuery('#get_php').click( function( e ){ sizes.getPhp( e, this ) } );
     
     jQuery('span.custom_size').closest('tr').children('th').css({
-        'color': 'green'
+        'color': '#89D76A'
     });
     jQuery('span.theme_size').closest('tr').children('th').css({
-        'color': 'orange'
+        'color': '#F2A13A'
     });
     
 	jQuery('.progress').hide();
@@ -290,8 +353,6 @@ jQuery(function() {
 	sizes.setButtons();
 	
 	jQuery('#get_php').nextAll('code').hide();
-	
-
 	
 	jQuery( '<div class="ui-widget" id="msg"><div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"><p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span><strong>Alert:</strong> <ul class="msg" ></ul></p></div></div>').prependTo( "div#wpwrap" ).slideUp( 0 );
 	

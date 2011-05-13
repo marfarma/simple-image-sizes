@@ -3,7 +3,7 @@ Contributors: Rahe
 Donate link: http://www.beapi.fr/donate/
 Tags: images, image, custom sizes, custom images, thumbnail regenerate, thumbnail, regenerate
 Requires at least: 3.0
-Tested up to: 3.1.1
+Tested up to: 3.2
 Stable tag: 2.0
 
 == Description ==

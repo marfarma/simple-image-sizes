@@ -1,0 +1,185 @@
+# Copyright (C) 2010 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version:  \n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/simple-image-sizes\n"
+"POT-Creation-Date: 2011-05-13 14:10:07+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: inc/class.admin.php:57
+msgid "Reading attachments..."
+msgstr ""
+
+#: inc/class.admin.php:58 inc/class.admin.php:186
+msgid "Maximum width"
+msgstr ""
+
+#: inc/class.admin.php:59 inc/class.admin.php:191
+msgid "Maximum height"
+msgstr ""
+
+#: inc/class.admin.php:60 inc/class.admin.php:197 inc/class.admin.php:263
+#: inc/class.admin.php:323
+msgid "Crop ?"
+msgstr ""
+
+#: inc/class.admin.php:61
+msgid " of "
+msgstr ""
+
+#: inc/class.admin.php:62 inc/class.admin.php:199
+msgid "Delete"
+msgstr ""
+
+#: inc/class.admin.php:63
+msgid "No media in your site to regenerate !"
+msgstr ""
+
+#: inc/class.admin.php:64
+msgid "Regenerating "
+msgstr ""
+
+#: inc/class.admin.php:65
+msgid "Validate image size name"
+msgstr ""
+
+#: inc/class.admin.php:66
+msgid "Done."
+msgstr ""
+
+#: inc/class.admin.php:67
+msgid "Size"
+msgstr ""
+
+#: inc/class.admin.php:68
+msgid ""
+"Don't use the basic Wordpress thumbnail size name, use the form above to "
+"edit them"
+msgstr ""
+
+#: inc/class.admin.php:69
+msgid "This size is already registered, edit it instead of recreating it."
+msgstr ""
+
+#: inc/class.admin.php:70
+msgid "Do you really want to delete these size ?"
+msgstr ""
+
+#: inc/class.admin.php:71 inc/class.admin.php:200
+msgid "Update"
+msgstr ""
+
+#: inc/class.admin.php:72
+msgid "Error requesting page"
+msgstr ""
+
+#: inc/class.admin.php:73
+msgid "images have been regenerated !"
+msgstr ""
+
+#: inc/class.admin.php:74
+msgid "Validate"
+msgstr ""
+
+#: inc/class.admin.php:92
+msgid "Settings"
+msgstr ""
+
+#: inc/class.admin.php:140
+msgid "Size "
+msgstr ""
+
+#: inc/class.admin.php:148
+msgid "Add a new size"
+msgstr ""
+
+#: inc/class.admin.php:151
+msgid "Legend of the sizes"
+msgstr ""
+
+#: inc/class.admin.php:154
+msgid "Get php for theme"
+msgstr ""
+
+#: inc/class.admin.php:157
+msgid "Thumbnail regeneration"
+msgstr ""
+
+#: inc/class.admin.php:179
+msgid "Custom size"
+msgstr ""
+
+#: inc/class.admin.php:182
+msgid "Theme size"
+msgstr ""
+
+#: inc/class.admin.php:211
+msgid "Add a new size of thumbnail"
+msgstr ""
+
+#: inc/class.admin.php:223
+msgid "Get the PHP for the theme"
+msgstr ""
+
+#: inc/class.admin.php:224
+msgid ""
+"Copy and paste the code below into your Wordpress theme function file if you "
+"wanted to save them and deactivate the plugin."
+msgstr ""
+
+#: inc/class.admin.php:237
+msgid ""
+"The images created on your theme are <span style=\"color:#F2A13A\">orange</"
+"span> and your custom size are <span style=\"color:#89D76A\"> green </span>."
+msgstr ""
+
+#: inc/class.admin.php:255
+msgid "Select which thumbnails you want to rebuild:"
+msgstr ""
+
+#: inc/class.admin.php:259 inc/class.admin.php:319 inc/class.admin.php:332
+#: inc/class.admin.php:358
+msgid "Resize ?"
+msgstr ""
+
+#: inc/class.admin.php:260 inc/class.admin.php:320
+msgid "Size name"
+msgstr ""
+
+#: inc/class.admin.php:261 inc/class.admin.php:321
+msgid "Width"
+msgstr ""
+
+#: inc/class.admin.php:262 inc/class.admin.php:322
+msgid "Height"
+msgstr ""
+
+#: inc/class.admin.php:312
+msgid "yes"
+msgstr ""
+
+#: inc/class.admin.php:312
+msgid "no"
+msgstr ""
+
+#: inc/class.admin.php:328
+msgid "Select which post type source thumbnails you want to rebuild:"
+msgstr ""
+
+#: inc/class.admin.php:333 inc/class.admin.php:359
+msgid "Post type"
+msgstr ""
+
+#: inc/class.admin.php:378
+msgid "Last image:"
+msgstr ""
+
+#: inc/class.admin.php:379
+msgid "Regenerate Thumbnails"
+msgstr ""

@@ -1,4 +1,3 @@
-var i = 0;
 // Functions for the regenerating of images
 var regenerate = {
 	post_types : '',
@@ -239,7 +238,8 @@ var sizes = {
 		// Refresh the buttons
 		this.setButtons();
 	},
-	delete: function( el ) {
+	deleteSize: function( e, el ) {
+		e.preventDefault();
 		// Check if user want to delete or not
 		var confirmation = confirm( sis.confirmDelete );
 		
@@ -247,9 +247,7 @@ var sizes = {
 		if( confirmation == true ) {
 			// Remove from the list and the array
 			jQuery( el ).closest( 'tr' ).remove();
-			this.removeFromArray( el );
-		}else{
-			return false;
+			this.ajaxUnregister( el );
 		}
 	},
 	getPhp : function( e, el ) {
@@ -282,6 +280,13 @@ var sizes = {
 		var parent = jQuery( el ).closest('tr');
 		var n = parent.find('input[name=image_name]').val();
 		var c = parent.find( 'input.c' ).attr( 'checked' );
+
+		if( c == false || c == undefined ) {
+			c = false;
+		} else {
+			c = true;
+		}
+		
 		var w = parseInt( parent.find( 'input.w' ).val() );
 		var h = parseInt( parent.find( 'input.h' ).val() );
 		
@@ -328,9 +333,7 @@ var sizes = {
 			}
 		});	
 	},
-	ajaxUnregister: function(e, el) {
-		e.preventDefault();
-		
+	ajaxUnregister: function( el) {
 		// Get name and self object
 		var self = this;
 		var n =  jQuery( el ).closest('tr').find('input[name=image_name]').val();
@@ -341,8 +344,7 @@ var sizes = {
 	        type: "POST",
 	        data: { action : "remove_size", name: n },
 	        success: function(result) {
-	        	// delete the row
-				self.delete( el );	
+				self.removeFromArray( el );
 	        }
 	    });	
 	},
@@ -417,7 +419,7 @@ jQuery(function() {
     jQuery('.add_size_name').live( 'click',function( e ){ sizes.register( e, this ); });
     
     // Delete and Adding buttons
-    jQuery('.delete_size').live('click', function( e ){ sizes.ajaxUnregister( e, this ); });
+    jQuery('.delete_size').live('click', function( e ){ sizes.deleteSize( e, this ); });
     jQuery('.validate_size').live('click', function( e ){ sizes.ajaxRegister( e, this ); });
     
     // Seup the getphp

@@ -280,6 +280,13 @@ var sizes = {
 		var parent = jQuery( el ).closest('tr');
 		var n = parent.find('input[name=image_name]').val();
 		var c = parent.find( 'input.c' ).attr( 'checked' );
+
+		if( c == false || c == undefined ) {
+			c = false;
+		} else {
+			c = true;
+		}
+		
 		var w = parseInt( parent.find( 'input.w' ).val() );
 		var h = parseInt( parent.find( 'input.h' ).val() );
 		

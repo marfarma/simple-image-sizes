@@ -401,7 +401,7 @@ Class SISAdmin {
 		$crop = isset( $_POST['crop'] ) &&  $_POST['crop'] == 'false' ? false : true;
 
 		$values = array( 'custom' => 1, 'w' => $width , 'h' => $height, 'c' => $crop );
-		var_dump( $values );
+
 		// If the size have not changed return 2
 		if( isset( $sizes[$name] ) && $sizes[$name] === $values ) {
 			echo 2;

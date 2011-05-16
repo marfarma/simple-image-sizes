@@ -27,7 +27,7 @@ Class SISClient {
 		foreach( $sizes as $name => $size ){
 			// Get cropping
 			$crop = ( isset( $size['c'] ) && !empty( $size['c'] ) )? $size['c'] : 0 ;
-			
+
 			// Add the images sizes
 			add_image_size( $name, $size['w'], $size['h'], $crop );
 		}		

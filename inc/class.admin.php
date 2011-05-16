@@ -131,13 +131,15 @@ Class SISAdmin {
 				$height = get_option( "{$s}_size_h" );
 			
 			//Set crop
-			if ( isset( $_wp_additional_image_sizes[$s]['crop'] ) )   // For theme-added sizes
+			if ( isset( $_wp_additional_image_sizes[$s]['crop'] ) ) {   // For theme-added sizes
 				$crop = intval( $_wp_additional_image_sizes[$s]['crop'] );
-			else                                                      // For default sizes set in options
+			} else {            
+				// For default sizes set in options
 				$crop = get_option( "{$s}_crop" );
+			}
 			
 			// Add the setting field for this size
-			add_settings_field( 'image_size_'.$s.'', __( 'Size ', 'sis' ).$s, array( &$this, 'imageSizes' ), 'media' , 'default', array( 'name' => $s , 'width' => $width , 'height' => $height ) );
+			add_settings_field( 'image_size_'.$s.'', __( 'Size ', 'sis' ).$s, array( &$this, 'imageSizes' ), 'media' , 'default', array( 'name' => $s , 'width' => $width , 'height' => $height, 'c' => $crop ) );
 
 	 	}
 	 	
@@ -171,7 +173,7 @@ Class SISAdmin {
 		
 		$height 	= 	isset( $sizes[$args['name']]['h'] )? $sizes[$args['name']]['h'] : $args['height'] ;
 		$width 		= 	isset( $sizes[$args['name']]['w'] )? $sizes[$args['name']]['w'] : $args['width'] ;
-		$crop 		= 	isset( $sizes[$args['name']]['c'] ) && !empty( $sizes[$args['name']]['c'] )? '1' : '0' ;
+		$crop 		= 	isset( $sizes[$args['name']]['c'] ) && !empty( $sizes[$args['name']]['c'] )? $sizes[$args['name']]['c'] : $args['c'] ;
 		$custom 	= 	( isset( $sizes[$args['name']]['custom'] ) && !empty( $sizes[$args['name']]['custom'] ) )? '1' : '0' ;
 		?>
 		<input type="hidden" value="<?php echo $args['name']; ?>" name="image_name" />

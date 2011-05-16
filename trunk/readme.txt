@@ -4,7 +4,7 @@ Donate link: http://www.beapi.fr/donate/
 Tags: images, image, custom sizes, custom images, thumbnail regenerate, thumbnail, regenerate
 Requires at least: 3.0
 Tested up to: 3.2
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 
 == Description ==
 
@@ -28,6 +28,8 @@ Now you can use the generated sizes directly into your posts and insert images a
 3. In posts thumbnails
 
 == Changelog ==
+* 2.0.3
+	* Resolve issue with theme sizes witch by default are displayed as not cropped. Thanks to momo360modena for the bug signalment.
 * 2.0.2
 	* Remove debug on php for javascript
 	* Resolve issue with the different versions on jquery ( like in WP3.2 ) with attr return for checked components

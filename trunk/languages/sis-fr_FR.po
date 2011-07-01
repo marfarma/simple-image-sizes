@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Simple image sizes\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-13 16:04+0100\n"
-"PO-Revision-Date: 2011-05-13 16:04+0100\n"
+"PO-Revision-Date: 2011-07-01 15:21+0100\n"
 "Last-Translator: Nicolas <njuen@beapi.fr>\n"
 "Language-Team: Beapi <njuen@beapi.fr>\n"
 "MIME-Version: 1.0\n"
@@ -173,11 +173,11 @@ msgstr "Hauteur"
 
 #: inc/class.admin.php:312
 msgid "yes"
-msgstr "non"
+msgstr "oui"
 
 #: inc/class.admin.php:312
 msgid "no"
-msgstr "oui"
+msgstr "non"
 
 #: inc/class.admin.php:328
 msgid "Select which post type source thumbnails you want to rebuild:"

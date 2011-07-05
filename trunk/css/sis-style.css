@@ -24,16 +24,16 @@ tr{
     -o-transition: all .5s ease-in-out;
     transition: all .5s ease-in-out;
 }
-table.sis tr:nth-child(even){
+table.sis tr:nth-child(even) {
 	background-color:#FCFCFC ;
 }
-table.sis tr:nth-child(odd){
+table.sis tr:nth-child(odd) {
 	background-color:transparent ;
 }
-tr.addPending{
+tr.addPending {
 	background-color:#6CA1D7;
 }
-tr.successAdding{
+tr.successAdding {
 	background-color:#89D76A;
 }
 tr.errorAdding {

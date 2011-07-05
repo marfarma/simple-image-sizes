@@ -4,7 +4,7 @@ Donate link: http://www.beapi.fr/donate/
 Tags: images, image, custom sizes, custom images, thumbnail regenerate, thumbnail, regenerate
 Requires at least: 3.0
 Tested up to: 3.2
-Stable tag: 2.0.3
+Stable tag: 2.1
 
 == Description ==
 
@@ -12,9 +12,13 @@ This plugin allow create custom image sizes for your site. Override your theme s
 You can regenerate all the sizes you have just created and choose which one you wanted to regenerate.
 You can now get all the code to copy and paste to your function theme file.
 Now you can use the generated sizes directly into your posts and insert images at the right size !
+Now you choose if you want display the size in the post insert image.
+
+I have added a timer so when you regeneration your thumbnails, you can know approximately when the regeneration will be ended.
+I have improved the php and javascript, you can know if the image have been regenerated or not or if there is an error and which one.
 
 == Installation ==
- **Required PHP5.**
+ **PHP5 Required.**
  
 1. Download, unzip and upload to your WordPress plugins directory
 2. Activate the plugin within you WordPress Administration Backend
@@ -24,10 +28,20 @@ Now you can use the generated sizes directly into your posts and insert images a
 == Screenshots ==
 
 1. Settings page
-2. Regenerating
-3. In posts thumbnails
+2. Get PHP for the theme
+3. Choose the sizes to regenerate
+4. Regenerating image sizes
 
 == Changelog ==
+* 2.1
+	* Add javascript timer
+	* Improve javascript and more IE friendly
+	* You can now choose if you want to display the image sizes in image insertion or not
+	* Handle errors and messages
+	* Remove some css useless rules
+	* Fix bad translation for french
+	* Remove accents in image sizes
+	* Do not update size properties if there is an ajax query for an another size name
 * 2.0.3
 	* Resolve issue with theme sizes witch by default are displayed as not cropped. Thanks to momo360modena for the bug signalment.
 * 2.0.2

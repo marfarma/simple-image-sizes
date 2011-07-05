@@ -24,8 +24,11 @@ tr{
     -o-transition: all .5s ease-in-out;
     transition: all .5s ease-in-out;
 }
-tr:nth-child(even){
-	background-color:#F9F9F9 ;
+table.sis tr:nth-child(even){
+	background-color:#FCFCFC ;
+}
+table.sis tr:nth-child(odd){
+	background-color:transparent ;
 }
 tr.addPending{
 	background-color:#6CA1D7;
@@ -39,17 +42,8 @@ tr.errorAdding {
 tr.notChangedAdding {
 	background-color:#F2A13A;	
 }
-.wrapper {
-	display: inline-block;
-	float: left;
-	width: 45%;
-}
 
-#regenerate_message {
-	display:none;
-}
-
-#thumb {
+#regenerate_message,#time,#thumb {
 	display:none;
 }
 

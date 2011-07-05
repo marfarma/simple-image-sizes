@@ -115,8 +115,7 @@ Class SISAdmin {
 		// Get the image sizes
 		global $_wp_additional_image_sizes;
 		$options = get_option( SIS_OPTION );
-		
-		var_dump(get_intermediate_image_sizes());
+
 		// Get the sizes and add the settings
 		foreach ( get_intermediate_image_sizes() as $s ) {
 

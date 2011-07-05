@@ -8,38 +8,41 @@ var regenerate = {
 	dateScript: '',
 	percent : '' ,
 	getThumbnails : function() {
-		var self = this;
+		var _self = this;
 		var inputs = jQuery( 'input.thumbnails:checked' );
 		
 		// Get the checked thumbnails inputs
 		if (inputs.length != jQuery( 'input.thumbnails[type="checkbox"]' ).length) {
 			inputs.each( function( i ) {
-				self.thumbnails += '&thumbnails[]=' + jQuery( this ).val();
+				_self.thumbnails += '&thumbnails[]=' + jQuery( this ).val();
 			});
 		}	
 	},
 	getPostTypes : function() {
-		var self = this;
+		var _self = this;
 		var inputs = jQuery( 'input.post_types:checked' );
 	
 		// Get the checked post Types inputs
 		if ( inputs.length != jQuery( 'input.post_types[type="checkbox"]' ).length ) {
 			inputs.each( function() {
-				self.post_types += '&post_types[]=' + jQuery( this ).val();
+				_self.post_types += '&post_types[]=' + jQuery( this ).val();
 			} );
 		}
 	},
 	setMessage : function( msg ) {
 		// Display the message
-		jQuery("#regenerate_message").html( msg ).addClass( 'updated' ).addClass( 'fade' ).show();
+		jQuery("#regenerate_message").html( "<p>" + msg + "</p>" ).addClass( 'updated' ).addClass( 'fade' ).show();
 		this.refreshProgressBar();
+	},
+	setTimeMessage : function ( msg ) {
+		jQuery("#time p span.time_message").html( msg );
 	},
 	refreshProgressBar: function(){
 		// Refresh the progress Bar
 		jQuery(".progress").progressbar();
 	},
 	startRegenerating : function( ) {
-		var self = this;
+		var _self = this;
 		
 		this.dateScript = new Date();
 		
@@ -48,36 +51,36 @@ var regenerate = {
 			url: sis.ajaxUrl,
 			type: "POST",
 			dataType: 'json',
-			data: "action=sis_ajax_thumbnail_rebuild&do=getlist" + self.post_types,
+			data: "action=sis_ajax_thumbnail_rebuild&do=getlist" + _self.post_types,
 			beforeSend: function() {
 				
 				// Disable the button
 				jQuery( "#ajax_thumbnail_rebuild" ).attr( "disabled", true );
-				
+				jQuery("#time").show();
 				// Display the message
-				self.setMessage( "<p>" + sis.reading + "</p>" );
+				_self.setMessage(  sis.reading );
 				
 				// Get the humbnails and post types
-				self.getThumbnails();
-				self.getPostTypes();
+				_self.getThumbnails();
+				_self.getPostTypes();
 			},
 			success: function( r ) {
 				// Eval the response
-				self.list = r ;
+				_self.list = r ;
 				
 				// Set the current to 0
-				self.curr = 0;
+				_self.curr = 0;
 				
 				// Display the progress Bar
 				jQuery( '.progress' ).show();
 				
 				// Start Regenerating
-				self.regenItem();
+				_self.regenItem();
 			}
 		});
 	},
 	regenItem : function( ) {
-		var self = this;
+		var _self = this;
 		
 		// If the list is empty display the message of emptyness and reinitialize the form
 		if ( !this.list ) {
@@ -88,8 +91,9 @@ var regenerate = {
 		
 		// If we have finished the regeneration display message and init again
 		if ( this.curr >= this.list.length ) {
+			var now = new Date();
 			this.reInit();
-			this.setMessage( sis.done+this.curr+' '+sis.messageRegenerated );
+			this.setMessage( sis.done+this.curr+' '+sis.messageRegenerated+' finished at :'+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds() );
 			return;
 		}
 		
@@ -103,65 +107,81 @@ var regenerate = {
 			data: "action=sis_ajax_thumbnail_rebuild&do=regen&id=" + this.list[this.curr].id + this.thumbnails,
 			beforeSend : function() {
 				// Calculate the percentage of regeneration
-				self.percent = ( self.curr / self.list.length ) * 100;
+				_self.percent = ( _self.curr / _self.list.length ) * 100;
 				
 				// Change the progression
-				jQuery( ".progress" ).progressbar( "value", self.percent );
+				jQuery( ".progress" ).progressbar( "value", _self.percent );
 				
 				// Change the text of progression
-				jQuery( ".progress-percent span.text" ).html( Math.round( self.percent ) + "%").closest( '.progress-percent' ).animate( { left: Math.round( self.percent )-2.5 + "%" }, 500 );
+				jQuery( ".progress-percent span.text" ).html( Math.round( _self.percent ) + "%").closest( '.progress-percent' ).animate( { left: Math.round( _self.percent )-2.5 + "%" }, 500 );
 			},
 			success: function( r ) {
 				
-				// Display the image
-				jQuery( "#thumb" ).show();
-				
-				// Change his attribute
-				jQuery( "#thumb-img" ).attr("src", r.src);
-				
-				self.timeScript.push(r.time);
-				
-				num = self.timeScript.length;
-				somme = 0;
-				for( var i=0; i<num ;i++ ) {
-					somme += self.timeScript[i];
+				// Check if error or a message in response
+				if( ( !r.src || !r.time ) && r.error ) {
+					jQuery( '#error_messages' ).addClass( 'error message' );
+					jQuery( '#error_messages ul.messages' ).append( '<li>'+r.error+'</li>' );
+				} else {
+					
+					// Append a message if needed
+					if( r.message )
+						jQuery( '#time ul.messages' ).append( '<li>'+r.message+'</li>' );
+						
+					// Actual time
+					var dateEnd = new Date();
+					var curDate = new Date();
+					
+					// Display the image
+					jQuery( "#thumb" ).show();
+					
+					// Change his attribute
+					jQuery( "#thumb-img" ).attr("src", r.src);
+					
+					// Add the regenerating time to the array
+					_self.timeScript.push(r.time);
+					
+					// Get the number of elements in array
+					var num = _self.timeScript.length;
+					var sum = 0;
+
+					// Make the sum of the times
+					for( var i=0; i<num ;i++ ) {
+						sum += _self.timeScript[i];
+					}
+
+					// Make the average value of the regenerating time
+					var ave = sum/num;
+					
+					// Round the value in miliseconds and add 25% or error
+					var t = Math.round( ( ( ave *_self.list.length ) * 1000 ) );
+
+					// Set the predicted time
+					dateEnd.setTime( _self.dateScript.getTime() + t );
+					
+					// Get the difference between the two dates
+					var time = _self.s2t( ( dateEnd.getTime() - curDate.getTime() ) / 1000 );
+
+					// Set the message in the notice box
+					_self.setTimeMessage( dateEnd.getHours()+":"+dateEnd.getMinutes()+":"+dateEnd.getSeconds()+sis.or+time+sis.beforeEnd );
 				}
 				
-				
-				console.log( self.dateScript );
-				console.log( self.dateScript.getTime() );
-				
-				moy = somme/num;
-				
-				
-				var t = Math.round( ( ( moy *self.list.length ) * 1000 ) );
-				//secondes
-				var s = Math.floor(t / 1000) % 60;
-				//minutes
-				var m = Math.floor(t / 60000) % 60;
-				//minutes
-				var h = Math.floor(t / 60000*60 ) % 60;
-				
-				
-				ms = t;
-				ms=Math.round( ms/1000 ); 
-				s=Math.round(ms%60); 
-				 ms=Math.round(ms/60); 
-				m=Math.round(ms%60); 
-				 ms=Math.round(ms/60); 
-				h=Math.round(ms);
-				
-				//affichage
-				 var chaine =  h+":"+m+":"+s;
-				 console.log(  chaine );
-				console.log( self.dateScript.getHours()+":"+self.dateScript.getMinutes()+":"+self.dateScript.getSeconds() );
 				// Inscrease the counter and regene the next item
-				self.curr++;
-				self.regenItem();
+				_self.curr++;
+				_self.regenItem();
 			}
 		});
 
 	},
+	s2t : function (secs) {
+		secs = secs % 86400;
+		var t = new Date(1970,0,1);
+		t.setSeconds(secs);
+		var s = t.toTimeString().substr(0,8);
+		if(secs > 86399)
+		s = Math.floor((t - Date.parse("1/1/70")) / 3600000) + s.substr(2);
+		return s;
+	}
+	,
 	reInit: function() {
 		// Re initilize the form
 		jQuery( "#ajax_thumbnail_rebuild" ).removeAttr( "disabled" );
@@ -180,7 +200,7 @@ var sizes = {
 								jQuery( '<input />' )
 									.attr( { 	
 										type: 'text',
-										id: 'new_size_'+this.i,
+										id: 'new_size_'+this.i
 									}
 								 )
 								 .val( 'thumbnail-name' )
@@ -189,15 +209,15 @@ var sizes = {
 		jQuery( '<td />' ).append( jQuery( '<input />' )
 									.attr( { 	
 										type: 'button',
-										id: 'validate_'+this.i,
+										id: 'validate_'+this.i
 									}
 								 )
 								 .val( sis.validate )
 								 .addClass('button-secondary action add_size_name')
 							).appendTo( elTr );
-		
+
 		// Add the form for editing
-		jQuery(el).closest( 'tr' ).before(elTr);
+		jQuery(el).closest( 'tr' ).before( elTr );
 		
 		// Inscrease the identifier
 		this.i++;
@@ -207,8 +227,8 @@ var sizes = {
 		e.preventDefault();
 		
 		// Get name and id
-		var name = jQuery(el).closest('tr').children('th').find('input').val();
-		var id = jQuery(el).closest('tr').children('th').find('input').attr('id');
+		var name = jQuery(el).closest('tr').children( 'th' ).find( 'input' ).val();
+		var id = jQuery(el).closest('tr').children('th').find( 'input' ).attr( 'id' );
 		
 		// Get the number of elements with this name
 		var checkPresent = jQuery( el ).closest('tbody').find( 'input[value="'+name+'"]' ).length;
@@ -336,10 +356,11 @@ var sizes = {
 		e.preventDefault();
 		
 		// Get the vars
-		var self = this;
+		var _self = this;
+		var parentTable = jQuery( el ).closest( 'table' );
 		var timer;
 		var parent = jQuery( el ).closest( 'tr' );
-		var n = parent.find( 'input[name=image_name]' ).val();
+		var n = parent.find( 'input[name="image_name"]' ).val();
 		var c = parent.find( 'input.c' ).attr( 'checked' );
 		var s = parent.find( 'input.s' ).attr( 'checked' );
 
@@ -358,54 +379,58 @@ var sizes = {
 		var w = parseInt( parent.find( 'input.w' ).val() );
 		var h = parseInt( parent.find( 'input.h' ).val() );
 		
-		jQuery.ajax({
-			url: sis.ajaxUrl,
-			type: "POST",
-			dataType :'json',
-			data: { action : "add_size", width: w, height: h, crop: c, name: n, show: s },
-			beforeSend: function() {
-				// Remove status and set pending
-				parent.removeClass( 'errorAdding notChangedAdding successAdding' );
-				parent.addClass( 'addPending' );
-			},
-			success: function(result) {
-				// Set basic class and remove pending
-				var classTr = '';
-				parent.removeClass( 'addPending' );
-				
-				// Check the result for the different messages
-				if( result == 0 ) {
-					classTr = 'errorAdding';
-				} else if( result == 2 ) {
-					classTr = 'notChangedAdding';
-					
-					// add/update to the array with the status class
-					self.addToArray( n, w, h, c, classTr );
-				} else {
-					classTr = 'successAdding';
-					
-					// add/update to the array with the status class
-					self.addToArray( n, w, h, c, classTr );
-				}
-				
-				// Add the generated class
-				parent.addClass( classTr );
-				
-				// Change the button text
-				parent.find( '.add_size .ui-button-text' ).text( sis.update ) ;
-				
-				clearTimeout( timer );
-				// Remove classes after 3 seconds
-				timer = setTimeout(function() {
+		if( !parentTable.hasClass( 'ajaxing' ) ) {
+			jQuery.ajax({
+				url: sis.ajaxUrl,
+				type: "POST",
+				dataType :'json',
+				data: { action : "add_size", width: w, height: h, crop: c, name: n, show: s },
+				beforeSend: function() {
+					// Remove status and set pending
 					parent.removeClass( 'errorAdding notChangedAdding successAdding' );
-				}, 3 * 1000  );
-			}
-		});	
+					parent.addClass( 'addPending' );
+					parentTable.addClass( 'ajaxing' );
+				},
+				success: function(result) {
+					// Set basic class and remove pending
+					var classTr = '';
+					parent.removeClass( 'addPending' );
+					parentTable.removeClass( 'ajaxing' )
+					
+					// Check the result for the different messages
+					if( result == 0 ) {
+						classTr = 'errorAdding';
+					} else if( result == 2 ) {
+						classTr = 'notChangedAdding';
+						
+						// add/update to the array with the status class
+						_self.addToArray( n, w, h, c, classTr );
+					} else {
+						classTr = 'successAdding';
+						
+						// add/update to the array with the status class
+						_self.addToArray( n, w, h, c, classTr );
+					}
+					
+					// Add the generated class
+					parent.addClass( classTr );
+					
+					// Change the button text
+					parent.find( '.add_size .ui-button-text' ).text( sis.update ) ;
+					
+					clearTimeout( timer );
+					// Remove classes after 3 seconds
+					timer = setTimeout(function() {
+						parent.removeClass( 'errorAdding notChangedAdding successAdding' );
+					}, 3 * 1000  );
+				}
+			});
+		}	
 	},
 	ajaxUnregister: function( el ) {
-		// Get name and self object
-		var self = this;
-		var n =  jQuery( el ).closest('tr').find( 'input[name=image_name]' ).val();
+		// Get name and _self object
+		var _self = this;
+		var n =  jQuery( el ).closest('tr').find( 'input[name="image_name"]' ).val();
 		
 		// Make the ajax call
 		jQuery.ajax({
@@ -413,7 +438,7 @@ var sizes = {
 			type: "POST",
 			data: { action : "remove_size", name: n },
 			success: function(result) {
-				self.removeFromArray( el );
+				_self.removeFromArray( el );
 			}
 		});	
 	},

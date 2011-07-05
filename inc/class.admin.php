@@ -33,7 +33,7 @@ Class SISAdmin {
 		if( isset( $hook_suffix ) && $hook_suffix == 'options-media.php' ) {
 			// Add javascript
 			wp_enqueue_script( 'sis-jquery-ui-sis',  SIS_URL.'js/jquery-ui-1.8.12.custom.min.js', array('jquery'), '1.8.12' );
-			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.js', array('jquery','sis-jquery-ui-sis'), SIS_VERSION );
+			wp_enqueue_script( 'sis_js', SIS_URL.'js/sis.min.js', array('jquery','sis-jquery-ui-sis'), SIS_VERSION );
 			
 			// Add javascript translation
 			wp_localize_script( 'sis_js', 'sis', $this->localizeVars() );
@@ -62,6 +62,8 @@ Class SISAdmin {
 			'fl' => __( 'no', 'sis' ),
 			'show' => __( 'Show in post insertion ?', 'sis' ),
 			'of' => __( ' of ', 'sis' ),
+			'or' => __( ' or ', 'sis' ),
+			'beforeEnd' => __( ' before the end.', 'sis' ),
 			'deleteImage' => __( 'Delete', 'sis' ),
 			'noMedia' => __( 'No media in your site to regenerate !', 'sis' ),
 			'regenerating' => __( 'Regenerating ', 'sis'),
@@ -113,12 +115,13 @@ Class SISAdmin {
 		// Get the image sizes
 		global $_wp_additional_image_sizes;
 		$options = get_option( SIS_OPTION );
-
+		
+		var_dump(get_intermediate_image_sizes());
 		// Get the sizes and add the settings
 		foreach ( get_intermediate_image_sizes() as $s ) {
-		
-			// Don't make the original sizes
-			if( in_array( $s, $this->original ) )
+
+			// Don't make the original sizes or numeric sizes that appear
+			if( in_array( $s, $this->original ) || is_integer( $s ) )
 				continue;
 			
 			// Set width
@@ -170,6 +173,10 @@ Class SISAdmin {
 	 * @author Nicolas Juen
  	 */
  	public function imageSizes( $args ) {
+ 		
+		if( is_integer( $args['name'] ) )
+			return false;
+		
  		// Get the options
 		$sizes = (array)get_option( SIS_OPTION );
 		
@@ -260,26 +267,30 @@ Class SISAdmin {
 	public function thumbnailRegenerate() {
 		// Get the sizes
 		global $_wp_additional_image_sizes;
-		$class= "alternate";
+		$class= "";
 ?>
 		<div id="sis-regen">
 			<div class="wrapper" style="">
 				<h4> <?php _e( 'Select which thumbnails you want to rebuild:', 'sis'); ?> </h4>
-				<table cellspacing="0" class="widefat page fixed">
+				<table cellspacing="0" class="widefat page fixed sis">
 					<thead>
 						<tr>
-							<th class="manage-column column-date" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Size name', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Width', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Height', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Crop ?', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Size name', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Width', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Height', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Crop ?', 'sis'); ?></th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php
 						// Display the sizes in the array
 						foreach ( get_intermediate_image_sizes() as $s ):
-							$class = empty($class)? 'alternate' : '' ;
+							// Don't make or numeric sizes that appear
+							if( is_integer( $s ) )
+								continue;
+							
+							$class = empty($class)? '' : '' ;
 	
 							if ( isset( $_wp_additional_image_sizes[$s]['width'] ) ) // For theme-added sizes
 								$width = intval( $_wp_additional_image_sizes[$s]['width'] );
@@ -324,21 +335,22 @@ Class SISAdmin {
 						<?php endforeach;?>
 					</tbody>
 					<tfoot>
-							<th class="manage-column column-date" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Size name', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Width', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Height', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Crop ?', 'sis'); ?></th>
+						<tr>
+							<th class="manage-column" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Size name', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Width', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Height', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Crop ?', 'sis'); ?></th>
+						</tr>
 					</tfoot>
 				</table>
-			</div>
-			<div style="display: inline-block;width: 25%;margin-left: 15px;">
+				
 				<h4><?php _e( 'Select which post type source thumbnails you want to rebuild:', 'sis'); ?></h4>
-				<table cellspacing="0" class="widefat page fixed">
+				<table cellspacing="0" class="widefat page fixed sis">
 						<thead>
 							<tr>
-								<th class="manage-column column-date" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
-								<th class="manage-column column-author" scope="col"><?php _e( 'Post type', 'sis'); ?></th>
+								<th class="manage-column" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
+								<th class="manage-column" scope="col"><?php _e( 'Post type', 'sis'); ?></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -363,15 +375,14 @@ Class SISAdmin {
 					</tbody>
 					<tfoot>
 						<tr>
-							<th class="manage-column column-date" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
-							<th class="manage-column column-author" scope="col"><?php _e( 'Post type', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Resize ?', 'sis'); ?></th>
+							<th class="manage-column" scope="col"><?php _e( 'Post type', 'sis'); ?></th>
 						</tr>
 					</tfoot>
 				</table>
 			</div>
 		</div>
-		
-		<div style="clear:both;padding-top:15px">
+		<div >
 			<div id="regenerate_message"></div>
 			<div class="progress">
 				<div class=" progress-percent ui-widget">
@@ -382,6 +393,21 @@ Class SISAdmin {
 						</p>
 					</div>
 				</div>
+			</div>
+			<div class="ui-widget" id="time">
+				<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+					<p>
+						<span class="ui-icon ui-icon-info" style="float: left; margin-right: .7em;"></span> 
+						<span><strong><?php _e( 'End time calculated :', 'sis' ); ?></strong> <span class='time_message'>Calculating...</span> </span>
+					</p>
+					<ul class="messages"></ul>
+				</div>
+			</div>
+			<div id="error_messages">
+				<p>
+					<ul class="messages">
+					</ul>
+				</p>
 			</div>
 			<div id="thumb"><h4><?php _e( 'Last image:', 'sis'); ?></h4><img id="thumb-img" /></div>
 			<input type="button" class="button" name="ajax_thumbnail_rebuild" id="ajax_thumbnail_rebuild" value="<?php _e( 'Regenerate Thumbnails', 'sis' ) ?>" />
@@ -402,12 +428,17 @@ Class SISAdmin {
 		$sizes = (array)get_option( SIS_OPTION );
 		
 		// Check entries
-		$name = isset( $_POST['name'] ) ? apply_filters( 'sanitize_title', $_POST['name'] ) : '' ;
+		$name = isset( $_POST['name'] ) ? preg_replace('/[^a-z0-9]/i', '_', remove_accents ( $_POST['name'] ) ): '' ;
 		$height = !isset( $_POST['height'] )? 0 : (int)$_POST['height'];
 		$width =  !isset( $_POST['width'] )? 0 : (int)$_POST['width'];
 		$crop = isset( $_POST['crop'] ) &&  $_POST['crop'] == 'false' ? false : true;
 		$show = isset( $_POST['show'] ) &&  $_POST['show'] == 'false' ? false : true;
 		
+		// If no name given do not save
+		if( empty( $name ) ) {
+			echo 0;
+			die();
+		}
 		
 		// Make values
 		$values = array( 'custom' => 1, 'w' => $width , 'h' => $height, 'c' => $crop, 's' => $show );
@@ -442,7 +473,7 @@ Class SISAdmin {
 		unset( $sizes[0] );
 		
 		// Display the results
-		echo (int)update_option( 'custom_image_sizes', $sizes );
+		echo (int)update_option( SIS_OPTION, $sizes );
 		die();
 	}
 	
@@ -544,20 +575,22 @@ Class SISAdmin {
 			
 			// Check Id
 			if( (int)$id == 0 ) {
-				die( Null );
+				die( json_encode( array( round( microtime( true ) - $start_time, 4 ), 'error' => __( 'No id given in POST datas.', 'sis' ) ) ) );
 			}
 			
 			// Get the path
 			$fullsizepath = get_attached_file( $id );
-			
+
 			// Regen the attachment
 			if ( FALSE !== $fullsizepath && @file_exists( $fullsizepath ) ) {
 				set_time_limit( 30 );
-				wp_update_attachment_metadata( $id, $this->wp_generate_attachment_metadata_custom( $id, $fullsizepath, $thumbnails ) );
+				if( wp_update_attachment_metadata( $id, $this->wp_generate_attachment_metadata_custom( $id, $fullsizepath, $thumbnails ) ) == false )
+					die( json_encode( array( 'time' => round( microtime( true ) - $start_time, 4 ) ,'message' => sprintf( __( 'This file does not exists and have not been regenerated :<br/><a target="_blank" href="%1$s" >%2$s</a>', 'sis'), get_edit_post_link( $id ), get_the_title( $id ) ) ) ) );
+			} else {
+				die( json_encode( array( 'time' => round( microtime( true ) - $start_time, 4 ), 'error' => sprintf( __( 'This file does not exists and have not been regenerated :<br/><a target="_blank" href="%1$s" >%2$s</a>', 'sis'), get_edit_post_link( $id ), get_the_title( $id ) ) ) ) );
 			}
-			
-			// Display the attachment url for feedback
-			die( json_encode( array( 'time' => round(microtime(true) - $start_time, 4) , 'src' => wp_get_attachment_thumb_url( $id ), 'title' => get_the_title( $id ) ) ) );
+			// Display the attachment url for feedback 
+			die( json_encode( array( 'time' => round( microtime( true ) - $start_time, 4 ) , 'src' => wp_get_attachment_thumb_url( $id ), 'title' => get_the_title( $id ) ) ) );
 		}
 	}
 

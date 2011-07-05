@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Simple image sizes\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-07-05 15:34+0100\n"
-"PO-Revision-Date: 2011-07-05 15:35+0100\n"
+"PO-Revision-Date: 2011-07-05 16:11+0100\n"
 "Last-Translator: Nicolas <njuen@beapi.fr>\n"
 "Language-Team: Beapi <njuen@beapi.fr>\n"
 "MIME-Version: 1.0\n"
@@ -223,5 +223,5 @@ msgstr "Pas d'id donné dans les données du POST."
 #: inc/class.admin.php:576
 #, php-format
 msgid "This file does not exists and have not been regenerated :<br/><a target=\"_blank\" href=\"%1$s\" >%2$s</a>"
-msgstr "Ce fichier n'existe pas et n'a pas été regénéré :<br/><a target=\"_blank\" href=\"%1$s\" >%2$s</a>"
+msgstr "Ce fichier existe déjà dans cette ces tailles d'image et n'a pas été regénéré :<br/><a target=\"_blank\" href=\"%1$s\" >%2$s</a>"
 

@@ -118,7 +118,6 @@ Class SISAdmin {
 
 		// Get the sizes and add the settings
 		foreach ( get_intermediate_image_sizes() as $s ) {
-
 			// Don't make the original sizes or numeric sizes that appear
 			if( in_array( $s, $this->original ) || is_integer( $s ) )
 				continue;
@@ -144,7 +143,7 @@ Class SISAdmin {
 			}
 			
 			// Add the setting field for this size
-			add_settings_field( 'image_size_'.$s.'', __( 'Size ', 'sis' ).$s, array( &$this, 'imageSizes' ), 'media' , 'default', array( 'name' => $s , 'width' => $width , 'height' => $height, 'c' => $crop ) );
+			add_settings_field( 'image_size_'.$s, __( 'Size ', 'sis' ).$s, array( &$this, 'imageSizes' ), 'media' , 'default', array( 'name' => $s , 'width' => $width , 'height' => $height, 'c' => $crop ) );
 		}
 
 		// Register the setting for media option page
@@ -184,7 +183,7 @@ Class SISAdmin {
 		$width 		=	isset( $sizes[$args['name']]['w'] )? $sizes[$args['name']]['w'] : $args['width'] ;
 		$crop 		=	isset( $sizes[$args['name']]['c'] ) && !empty( $sizes[$args['name']]['c'] )? $sizes[$args['name']]['c'] : $args['c'] ;
 		$show 		=	isset( $sizes[$args['name']]['s'] ) && !empty( $sizes[$args['name']]['s'] )? '1' : '0' ;
-		$custom 	=	( isset( $sizes[$args['name']]['custom'] ) && !empty( $sizes[$args['name']]['custom'] ) )? '1' : '0' ;
+		$custom 	=	isset( $sizes[$args['name']]['custom'] ) && !empty( $sizes[$args['name']]['custom'] )? '1' : '0' ;
 		?>
 		<input type="hidden" value="<?php echo $args['name']; ?>" name="image_name" />
 		<?php if( $custom ): ?>
@@ -196,12 +195,12 @@ Class SISAdmin {
 		<?php endif; ?>
 		<label for="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][w]' ); ?>">
 			<?php _e( 'Maximum width', 'sis'); ?> 
-			<input name="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][w]' ); ?>" class='w' type="number" step='1' min='0' id="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][w]' ); ?>" value="<?php echo $width  ?>" />
+			<input name="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][w]' ); ?>" class='w' type="number" step='1' min='0' id="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][w]' ); ?>" value="<?php echo esc_attr( $width); ?>" />
 		</label>
 
 		<label for="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][h]' ); ?>">
 			<?php _e( 'Maximum height', 'sis'); ?> 
-			<input name="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][h]' ); ?>" class='h' type="number" step='1' min='0' id="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][h]' ); ?>" value="<?php echo $height ?>" />
+			<input name="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][h]' ); ?>" class='h' type="number" step='1' min='0' id="<?php echo esc_attr( 'custom_image_sizes['.$args['name'].'][h]' ); ?>" value="<?php echo esc_attr( $height ); ?>" />
 		</label>
 
 		<div class="crop">
@@ -226,7 +225,7 @@ Class SISAdmin {
  	 * @author Nicolas Juen
 	 */
 	public function addSizeButton() { ?>
-		<input type="button" class="button-secondary action" id="add_size" value="<?php _e( 'Add a new size of thumbnail', 'sis'); ?>" />
+		<input type="button" class="button-secondary action" id="add_size" value="<?php esc_attr_e( 'Add a new size of thumbnail', 'sis'); ?>" />
 	<?php
 	}	
 	
@@ -238,7 +237,7 @@ Class SISAdmin {
  	 * @author Nicolas Juen
 	 */
 	public function getPhpButton() { ?>
-		<input type="button" class="button-secondary action" id="get_php" value="<?php _e( 'Get the PHP for the theme', 'sis'); ?>" />
+		<input type="button" class="button-secondary action" id="get_php" value="<?php esc_attr_e( 'Get the PHP for the theme', 'sis'); ?>" />
 		<p> <?php _e( 'Copy and paste the code below into your Wordpress theme function file if you wanted to save them and deactivate the plugin.', 'sis'); ?> </p>
 		<code></code>
 	<?php
@@ -266,7 +265,6 @@ Class SISAdmin {
 	public function thumbnailRegenerate() {
 		// Get the sizes
 		global $_wp_additional_image_sizes;
-		$class= "";
 ?>
 		<div id="sis-regen">
 			<div class="wrapper" style="">
@@ -288,8 +286,6 @@ Class SISAdmin {
 							// Don't make or numeric sizes that appear
 							if( is_integer( $s ) )
 								continue;
-							
-							$class = empty($class)? '' : '' ;
 	
 							if ( isset( $_wp_additional_image_sizes[$s]['width'] ) ) // For theme-added sizes
 								$width = intval( $_wp_additional_image_sizes[$s]['width'] );
@@ -306,27 +302,27 @@ Class SISAdmin {
 							else                                                      // For default sizes set in options
 								$crop = get_option( "{$s}_crop" );
 							?>
-							<tr class="<?php echo $class; ?>">
+							<tr>
 								<td>
-									<input type="checkbox" class="thumbnails" id="<?php echo $s ?>" name="thumbnails[]" checked="checked" value="<?php echo $s ?>" />
+									<input type="checkbox" class="thumbnails" id="<?php echo $s ?>" name="thumbnails[]" checked="checked" value="<?php echo esc_attr( $s ); ?>" />
 								</td>
 								<td>
-									<label for="<?php echo $s ?>">
-										<?php echo $s; ?>
+									<label for="<?php echo esc_attr( $s ); ?>">
+										<?php echo esc_html( $s ); ?>
 									</label>
 								</td>
 								<td>
-									<label for="<?php echo $s ?>">
-										<?php echo $width;?> px
+									<label for="<?php echo esc_attr( $s ); ?>">
+										<?php echo esc_html( $width); ?> px
 									</label>
 								</td>
 								<td>
-									<label for="<?php echo $s ?>">
-										<?php echo $height; ?> px
+									<label for="<?php echo esc_attr( $s ); ?>">
+										<?php echo esc_html( $height ); ?> px
 									</label>
 								</td>
 								<td>
-									<label for="<?php echo $s ?>">
+									<label for="<?php echo esc_attr( $s ); ?>">
 										<?php echo ( $crop == 1 )? __( 'yes', 'sis' ):__( 'no', 'sis' ); ?>
 									</label>
 								</td>
@@ -356,17 +352,16 @@ Class SISAdmin {
 						<?php
 						// Diplay the post types table
 						foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $ptype ):
-							$class = empty($class)? 'alternate' : '' ;
 							?>
-							<tr class="<?php echo $class; ?>">
+							<tr>
 								<td>
-									<label for="<?php echo $ptype->name; ?>">
-										<input type="checkbox" class="post_types" name="post_types[]" checked="checked" id="<?php echo $ptype->name; ?>" value="<?php echo $ptype->name; ?>" />
+									<label for="<?php echo esc_attr( $ptype->name ); ?>">
+										<input type="checkbox" class="post_types" name="post_types[]" checked="checked" id="<?php echo esc_attr( $ptype->name ); ?>" value="<?php echo esc_attr( $ptype->name ); ?>" />
 									</label>
 								</td>
 								<td>
-								<label for="<?php echo $ptype->name; ?>">
-									<em><?php echo $ptype->labels->name; ?></em>
+								<label for="<?php echo esc_attr( $ptype->name ); ?>">
+									<em><?php echo esc_html( $ptype->labels->name ); ?></em>
 								</label>
 								</td>
 							</tr>
@@ -427,7 +422,7 @@ Class SISAdmin {
 		$sizes = (array)get_option( SIS_OPTION );
 		
 		// Check entries
-		$name = isset( $_POST['name'] ) ? preg_replace('/[^a-z0-9]/i', '_', remove_accents ( $_POST['name'] ) ): '' ;
+		$name = isset( $_POST['name'] ) ? remove_accents ( $_POST['name'] ): '' ;
 		$height = !isset( $_POST['height'] )? 0 : (int)$_POST['height'];
 		$width =  !isset( $_POST['width'] )? 0 : (int)$_POST['width'];
 		$crop = isset( $_POST['crop'] ) &&  $_POST['crop'] == 'false' ? false : true;
@@ -584,9 +579,9 @@ Class SISAdmin {
 			if ( FALSE !== $fullsizepath && @file_exists( $fullsizepath ) ) {
 				set_time_limit( 30 );
 				if( wp_update_attachment_metadata( $id, $this->wp_generate_attachment_metadata_custom( $id, $fullsizepath, $thumbnails ) ) == false )
-					die( json_encode( array( 'time' => round( microtime( true ) - $start_time, 4 ) ,'message' => sprintf( __( 'This file does not exists and have not been regenerated :<br/><a target="_blank" href="%1$s" >%2$s</a>', 'sis'), get_edit_post_link( $id ), get_the_title( $id ) ) ) ) );
+					die( json_encode( array( 'src' => wp_get_attachment_thumb_url( $id ), 'time' => round( microtime( true ) - $start_time, 4 ) ,'message' => sprintf( __( 'This file does not exists and have not been regenerated :<br/><a target="_blank" href="%1$s" >%2$s</a>', 'sis'), get_edit_post_link( $id ), get_the_title( $id ) ) ) ) );
 			} else {
-				die( json_encode( array( 'time' => round( microtime( true ) - $start_time, 4 ), 'error' => sprintf( __( 'This file does not exists and have not been regenerated :<br/><a target="_blank" href="%1$s" >%2$s</a>', 'sis'), get_edit_post_link( $id ), get_the_title( $id ) ) ) ) );
+				die( json_encode( array( 'src' => wp_get_attachment_thumb_url( $id ), 'time' => round( microtime( true ) - $start_time, 4 ), 'error' => sprintf( __( 'This file does not exists and have not been regenerated :<br/><a target="_blank" href="%1$s" >%2$s</a>', 'sis'), get_edit_post_link( $id ), get_the_title( $id ) ) ) ) );
 			}
 			// Display the attachment url for feedback 
 			die( json_encode( array( 'time' => round( microtime( true ) - $start_time, 4 ) , 'src' => wp_get_attachment_thumb_url( $id ), 'title' => get_the_title( $id ) ) ) );
@@ -604,7 +599,7 @@ Class SISAdmin {
 	 */
 	public function wp_generate_attachment_metadata_custom( $attachment_id, $file, $thumbnails = NULL ) {
 		$attachment = get_post( $attachment_id );
-	
+
 		$metadata = array();
 		if ( preg_match('!^image/!', get_post_mime_type( $attachment )) && file_is_displayable_image($file) ) {
 			$imagesize = getimagesize( $file );
@@ -612,13 +607,13 @@ Class SISAdmin {
 			$metadata['height'] = $imagesize[1];
 			list($uwidth, $uheight) = wp_constrain_dimensions($metadata['width'], $metadata['height'], 128, 96);
 			$metadata['hwstring_small'] = "height='$uheight' width='$uwidth'";
-	
+
 			// Make the file path relative to the upload dir
 			$metadata['file'] = _wp_relative_upload_path($file);
-	
+
 			// make thumbnails and other intermediate sizes
 			global $_wp_additional_image_sizes;
-	
+
 			foreach ( get_intermediate_image_sizes() as $s ) {
 				$sizes[$s] = array( 'width' => '', 'height' => '', 'crop' => FALSE );
 				if ( isset( $_wp_additional_image_sizes[$s]['width'] ) )
@@ -634,27 +629,25 @@ Class SISAdmin {
 				else
 					$sizes[$s]['crop'] = get_option( "{$s}_crop" ); // For default sizes set in options
 			}
-	
+
 			$sizes = apply_filters( 'intermediate_image_sizes_advanced', $sizes );
-	
+
 			foreach ( $sizes as $size => $size_data ) {
 				if( isset( $thumbnails ) )
 					if( !in_array( $size, $thumbnails ) )
 						continue;
-	
+
 				$resized = image_make_intermediate_size( $file, $size_data['width'], $size_data['height'], $size_data['crop'] );
-	
+
 				if ( $resized )
 					$metadata['sizes'][$size] = $resized;
 			}
-	
+
 			// fetch additional metadata from exif/iptc
 			$image_meta = wp_read_image_metadata( $file );
 			if ( $image_meta )
 				$metadata['image_meta'] = $image_meta;
-	
 		}
-	
 		return apply_filters( 'wp_generate_attachment_metadata', $metadata, $attachment_id );
 	}
 	
@@ -687,15 +680,15 @@ Class SISAdmin {
 				// is this size selectable?
 			$enabled = ( $downsize[3] || 'full' == $size );
 			$css_id = "image-size-{$size}-{$post->ID}";
-		
+
 			// We must do a clumsy search of the existing html to determine is something has been checked yet
 			if ( FALSE === strpos( 'checked="checked"', $form_fields['image-size']['html'] ) ) {
-		
+
 					if ( empty($check) )
 						$check = get_user_setting( 'imgsize' ); // See if they checked a custom size last time
-		
+
 					$checked = '';
-		
+
 					// if this size is the default but that's not available, don't select it
 					if ( $size == $check || str_replace( " ", "", $size ) == $check ) {
 						if ( $enabled )
@@ -709,14 +702,14 @@ Class SISAdmin {
 					}
 				}
 				$html = "<div class='image-size-item' style='min-height: 50px; margin-top: 18px;'><input type='radio' " . disabled( $enabled, false, false ) . "name='attachments[$post->ID][image-size]' id='{$css_id}' value='{$size}'$checked />";
-		
+
 				$html .= "<label for='{$css_id}'>$label</label>";
 				// only show the dimensions if that choice is available
 				if ( $enabled )
 					$html .= " <label for='{$css_id}' class='help'>" . sprintf( "(%d&nbsp;&times;&nbsp;%d)", $downsize[1], $downsize[2] ). "</label>";
-		
+
 				$html .= '</div>';
-		
+
 				$out .= $html;
 			}
 			$form_fields['image-size']['html'] .= $out;

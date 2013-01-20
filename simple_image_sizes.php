@@ -3,7 +3,7 @@
 Plugin Name: Simple Image Size
 Plugin URI: http://redmine.beapi.fr/projects/show/simple-image-sizes
 Description: Add options in media setting page for images sizes
-Version: 2.3.1
+Version: 2.4
 Author: Rahe
 Author URI: http://nicolas-juen.fr
 Text Domain: sis
@@ -27,9 +27,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define( 'SIS_URL', plugins_url('/', __FILE__) );
+define( 'SIS_URL', plugins_url('', __FILE__) );
 define( 'SIS_DIR', dirname(__FILE__) );
-define( 'SIS_VERSION', '2.3.1' );
+define( 'SIS_VERSION', '2.4' );
 define( 'SIS_OPTION', 'custom_image_sizes' );
 
 require_once( SIS_DIR . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'class.admin.php'  );
@@ -38,11 +38,11 @@ require_once( SIS_DIR . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'cla
 add_action ( 'plugins_loaded', 'initSIS' );
 function initSIS() {
 	global $SIS;
-	if( is_admin() )
+	if( is_admin() ) {
 		$SIS['admin'] = new SISAdmin();
+	}
 	
 	$SIS['client'] = new SISClient();
 	
 	load_plugin_textdomain ( 'sis', false, basename( rtrim( SIS_DIR, '/' ) ) . '/languages' );
 }
-?>

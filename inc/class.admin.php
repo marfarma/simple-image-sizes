@@ -305,7 +305,7 @@ Class SISAdmin {
 		if( is_file( SIS_DIR.'/templates/options-media.php' ) ) {
 			include( SIS_DIR.'/templates/options-media.php' );
 		} else {
-			echo _esc_html_e( 'Admin option-media template missing' );
+			esc_html_e( 'Admin option-media template missing' );
 		}
 	}
 		
@@ -601,6 +601,14 @@ Class SISAdmin {
 
 			$sizes = apply_filters( 'intermediate_image_sizes_advanced', $sizes );
 
+			// Only if not all sizes
+			if( isset( $thumbnails ) &&  is_array( $thumbnails ) ) {
+				// Fill the array with the other sizes not have to be done
+				foreach( $meta_datas['sizes'] as $name => $fsize ) {
+					$metadata['sizes'][$name] = $fsize;
+				}
+			}
+
 			foreach ( $sizes as $size => $size_data ) {
 				if( isset( $thumbnails ) )
 					if( !in_array( $size, $thumbnails ) ) {
@@ -616,14 +624,6 @@ Class SISAdmin {
 				
 				if ( $resized ) {
 					$metadata['sizes'][$size] = $resized;
-				}
-			}
-			
-			// Only if not all sizes
-			if( is_array( $thumbnails ) ) {
-				// Fill the array with the other sizes not have to be done
-				foreach( $meta_datas['sizes'] as $name => $fsize ) {
-					$metadata['sizes'][$name] = $fsize;
 				}
 			}
 			
